@@ -13,6 +13,7 @@ export default defineManifest({
       48: 'public/logo.png',
     },
     default_popup: 'src/popup/index.html',
+    default_title: 'QFill',
   },
   content_scripts: [{
     js: ['src/content/main.js'],

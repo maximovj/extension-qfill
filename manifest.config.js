@@ -26,4 +26,16 @@ export default defineManifest({
   side_panel: {
     default_path: 'src/sidepanel/index.html',
   },
+  background: {
+    service_worker: "src/background/index.js",
+    type: "module",
+  },
+  commands: {
+    "scan-page": {
+      suggested_key: {
+        default: "Ctrl+Shift+S",
+      },
+      description: "Escanear en busca de INPUTS sobre está página",
+    },
+  },
 })

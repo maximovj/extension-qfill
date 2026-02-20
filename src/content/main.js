@@ -3,7 +3,7 @@ import App from './views/App.vue'
 
 // Modo de desarrollo
 const timestamps = new Date().toISOString(); 
-alert('Inicializando extensión QFill (DEV)... ');
+alert('Inicializando [CONTENT SCRIPTS] extensión QFill (DEV)... ');
 console.log('Timestamps: ' + timestamps);
 console.log('[CRXJS] Hello world from content script!');
 

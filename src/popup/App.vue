@@ -91,19 +91,36 @@ const rellenarInputAnimado = (input) => {
 </script>
 
 <template>
-  <div class="space-y-4 text-xs">
+  <div class="space-y-5 text-xs">
 
-    <!-- Header -->
-    <div class="flex flex-col justify-between">
-      <div class="flex items-center gap-2">
-        <h1 class="text-sm font-semibold">QFill (Dev)</h1>
-        <span class="px-2 py-0.5 rounded-full bg-[var(--primary)] text-white text-[10px]">
-          {{ inputsFiltrados.length }}
+    <!-- ===================== -->
+    <!-- 🟦 TITULO / ENCABEZADO -->
+    <!-- ===================== -->
+    <div class="flex flex-col">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <h1 class="text-sm font-semibold">QFill (Dev)</h1>
+        </div>
+        <span>v1.0.0</span>
+      </div>
+      <div>
+        <p>Rellenado de formularios con perfiles personalizados</p>
+      </div>
+    </div>
+    
+    <!-- ===================== -->
+    <!-- 🟦 MÓDULO 1: ESCANEO -->
+    <!-- ===================== -->
+    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+      
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Escaneo</h2>
+        <span class="text-[10px] text-[var(--text-secondary)]">
+          {{ inputs.length }} detectados
         </span>
       </div>
 
-      <div class="flex flex-col justify-between h-20">
-        <div class="flex bg-[var(--surface)] border border-[var(--border)] rounded-lg overflow-hidden text-xs w-auto">
+      <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-fit">
         <button
           @click="soloVisibles = true"
           :class="soloVisibles ? activeSegment : segment"
@@ -118,59 +135,71 @@ const rellenarInputAnimado = (input) => {
         </button>
       </div>
 
-      <button @click="obtenerInputs" class="btn-primary text-xs">
-        Escanear
+      <button @click="obtenerInputs" class="btn-primary w-full">
+        Escanear página
       </button>
+    </section>
+
+
+    <!-- ===================== -->
+    <!-- 🟦 MÓDULO 2: FILTROS -->
+    <!-- ===================== -->
+    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+      
+      <h2 class="text-sm font-semibold">Filtros</h2>
+
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Buscar por name o id..."
+        class="input"
+      />
+
+      <div class="flex gap-2 flex-wrap mt-2">
+        <button
+          v-for="tipo in tiposDisponibles"
+          :key="tipo"
+          @click="filtroTipo = tipo"
+          :class="[
+            'px-2 py-1 rounded-md border text-[10px] transition',
+            filtroTipo === tipo
+              ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+              : 'border-[var(--border)] text-[var(--text-secondary)]'
+          ]"
+        >
+          {{ tipo }}
+        </button>
       </div>
-    </div>
+    </section>
 
-    <!-- Buscador -->
-    <input
-      v-model="search"
-      type="text"
-      placeholder="Buscar por name o id..."
-      class="input text-xs"
-    />
 
-    <!-- Filtro por tipo -->
-    <div class="flex gap-2 flex-wrap mt-4">
-      <button
-        v-for="tipo in tiposDisponibles"
-        :key="tipo"
-        @click="filtroTipo = tipo"
-        :class="[
-          'px-2 py-1 rounded-md border text-[10px] transition',
-          filtroTipo === tipo
-            ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-            : 'border-[var(--border)] text-[var(--text-secondary)]'
-        ]"
-      >
-        {{ tipo }}
-      </button>
-    </div>
-
-    <!-- Lista agrupada -->
-    <div v-if="Object.keys(inputsAgrupados).length"
-        class="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+    <!-- ===================== -->
+    <!-- 🟦 MÓDULO 3: RESULTADOS -->
+    <!-- ===================== -->
+    <section
+      v-if="Object.keys(inputsAgrupados).length"
+      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[320px] overflow-y-auto"
+    >
+      <h2 class="text-sm font-semibold">
+        Resultados ({{ inputsFiltrados.length }})
+      </h2>
 
       <div
         v-for="(grupo, formName) in inputsAgrupados"
         :key="formName"
-        class="space-y-4 p-4"
+        class="space-y-3"
       >
-        <!-- Título del formulario -->
         <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
           {{ formName }}
         </div>
 
-        <!-- Inputs -->
         <div
           v-for="i in grupo"
           :key="i.id"
-          class="card space-y-4 transition-all duration-300"
-          :class="animando === i.id ? 'scale-[1.02] ring-2 ring-green-500' : ''"
+          class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition"
+          :class="animando === i.id ? 'ring-2 ring-green-500' : ''"
         >
-          <div class="flex justify-between items-start">
+          <div class="flex justify-between">
             <div>
               <div class="font-medium">
                 {{ i.name || 'Sin nombre' }}
@@ -182,63 +211,14 @@ const rellenarInputAnimado = (input) => {
 
             <button
               @click="rellenarInputAnimado(i)"
-              class="text-[10px] px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+              class="text-[10px] text-green-600 hover:underline"
             >
               Rellenar
             </button>
           </div>
-
-          <!-- Editor dinámico -->
-          <div>
-            <template v-if="i.type === 'checkbox'">
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  :checked="i.value"
-                  @change="actualizarValor(i, $event)"
-                />
-                Activado
-              </label>
-            </template>
-
-            <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
-              <select
-                :multiple="i.type === 'select-multiple'"
-                @change="actualizarValor(i, $event)"
-                class="input text-xs"
-              >
-                <option
-                  v-for="opt in i.options"
-                  :key="opt"
-                  :value="opt"
-                  :selected="i.type==='select-multiple'
-                    ? i.value.includes(opt)
-                    : i.value===opt"
-                >
-                  {{ opt }}
-                </option>
-              </select>
-            </template>
-
-            <template v-else>
-              <input
-                type="text"
-                :value="i.value"
-                @input="actualizarValor(i, $event)"
-                class="input text-xs"
-              />
-            </template>
-          </div>
-
         </div>
       </div>
-    </div>
-
-    <!-- Empty state -->
-    <div v-else-if="esEscaneado"
-      class="text-center text-[var(--text-secondary)] py-6">
-      No se encontraron inputs.
-    </div>
+    </section>
 
   </div>
 </template>

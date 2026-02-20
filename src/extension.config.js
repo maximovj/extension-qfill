@@ -1,14 +1,18 @@
 const name = 'QFill';
 const author_name = 'Víctor J.';
-const version = '1.0.0';
-const description = 'Auto rellenar formularios de forma automatizado y personalizado';
+const header_version = 'v1.0.0 (Beta)';
+const header_description = 'Auto rellenar formularios de forma automatizado y personalizado';
+const isProd = true;
+const isDev = false;
+const env = 'Release';
 
 const extension = {
     name,
     author_name,
-    version,
-    description,
-    default_title: `${name} : ${description}`,
+    header_title: `${name} (${env})`, 
+    header_version,
+    header_description,
+    default_title: `${name} : ${header_description}`,
     host_permissions:  ['http://*/*', 'https://*/*'],
     permissions: [
         'storage',
@@ -18,6 +22,11 @@ const extension = {
         'sidePanel',
         'contentSettings',
     ],
+
+    // Desarrollo
+    env,
+    isDev,
+    isProd
 };
 
 export default extension;

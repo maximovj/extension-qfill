@@ -1,7 +1,11 @@
-// Modo de desarrollo
-const timestamps = new Date().toISOString(); 
-console.log('Inicializando [SERVICE WORKER] extensión QFill (DEV)... ');
-console.log('Timestamps: ' + timestamps);
+import extConfig from '@/extension.config.js'
+
+if(extConfig.isDev) {
+  // Modo de desarrollo
+  const timestamps = new Date().toISOString(); 
+  console.log('Inicializando [SERVICE WORKER] extensión QFill (DEV)... ');
+  console.log('Timestamps: ' + timestamps);
+}
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.action) {

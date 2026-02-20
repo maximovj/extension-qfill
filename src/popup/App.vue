@@ -101,12 +101,12 @@ const rellenarInputAnimado = (input) => {
     <div class="flex flex-col">
       <div class="flex justify-between items-center">
         <div class="flex items-center">
-          <h1 class="text-sm font-semibold">{{ extConfig.name }}</h1>
+          <h1 class="text-sm font-semibold">{{ extConfig.header_title }}</h1>
         </div>
-        <span>{{ extConfig.version  }}</span>
+        <span>{{ extConfig.header_version  }}</span>
       </div>
       <div>
-        <p>{{ extConfig.description }}</p>
+        <p>{{ extConfig.header_description }}</p>
       </div>
     </div>
     
@@ -118,7 +118,7 @@ const rellenarInputAnimado = (input) => {
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold">Escaneo</h2>
         <span class="text-[10px] text-[var(--text-secondary)]">
-          {{ inputs.length }} detectados
+          {{ inputs?.length }} detectados
         </span>
       </div>
 
@@ -179,13 +179,13 @@ const rellenarInputAnimado = (input) => {
     <!-- 🟦 MÓDULO 3: RESULTADOS -->
     <!-- ===================== -->
     <section
-      v-if="Object.keys(inputsAgrupados).length"
+      v-if="Object.keys(inputsAgrupados)?.length"
       class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[320px] overflow-y-auto"
     >
       <div class="flex flex-col">
         <div class="flex justify-between items-center">
           <h2 class="text-sm font-semibold">
-            Resultados ({{ inputsFiltrados.length }})
+            Resultados ({{ inputsFiltrados?.length }})
           </h2>
         </div>
         <div>

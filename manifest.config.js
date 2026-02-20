@@ -1,10 +1,13 @@
 import { defineManifest } from '@crxjs/vite-plugin'
-import pkg from './package.json'
+import extension from './extension.properties';
 
 export default defineManifest({
   manifest_version: 3,
-  name: pkg.name,
-  version: pkg.version,
+  name: extension.name,
+  version: extension.version,
+  author: extension.author_name,
+  description: extension.description,
+  host_permissions: extension.host_permissions,
   icons: {
     48: 'public/logo.png',
   },
@@ -13,16 +16,13 @@ export default defineManifest({
       48: 'public/logo.png',
     },
     default_popup: 'src/popup/index.html',
-    default_title: 'QFill',
+    default_title: extension.default_title,
   },
   content_scripts: [{
     js: ['src/content/main.js'],
-    matches: ['https://*/*'],
+    matches: extension.host_permissions,
   }],
-  permissions: [
-    'sidePanel',
-    'contentSettings',
-  ],
+  permissions: extension.permissions,
   side_panel: {
     default_path: 'src/sidepanel/index.html',
   },

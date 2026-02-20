@@ -2,6 +2,11 @@
   "name": "qfill",
   "type": "module",
   "version": "1.0.0",
+  "author": {
+    "name": "Víctor J.",
+    "email": "maximovj@outlook.com"
+  },
+  "description": "Rellenado de formularios con perfiles personalizados",
   "private": true,
   "scripts": {
     "dev": "vite",

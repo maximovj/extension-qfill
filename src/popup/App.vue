@@ -14,6 +14,7 @@ const segment = "px-3 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg)] tra
 const activeSegment = "px-3 py-1 bg-[var(--primary)] text-white";
 
 const obtenerInputs = () => {
+    filtroTipo.value = 'all';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(
         tabs[0].id,
@@ -181,9 +182,22 @@ const rellenarInputAnimado = (input) => {
       v-if="Object.keys(inputsAgrupados).length"
       class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[320px] overflow-y-auto"
     >
-      <h2 class="text-sm font-semibold">
-        Resultados ({{ inputsFiltrados.length }})
-      </h2>
+      <div class="flex flex-col">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-semibold">
+            Resultados ({{ inputsFiltrados.length }})
+          </h2>
+        </div>
+        <div>
+          <button
+            @click="rellenarTodos()"
+            class="text-[10px] text-green-600 hover:underline"
+          >
+            Rellenar Todos
+          </button>
+        </div>
+      </div>
+      
 
       <div
         v-for="(grupo, formName) in inputsAgrupados"
@@ -217,6 +231,49 @@ const rellenarInputAnimado = (input) => {
               Rellenar
             </button>
           </div>
+
+          <!-- Editor dinámico -->
+          <div>
+            <template v-if="i.type === 'checkbox'">
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  :checked="i.value"
+                  @change="actualizarValor(i, $event)"
+                />
+                Activado
+              </label>
+            </template>
+
+            <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
+              <select
+                :multiple="i.type === 'select-multiple'"
+                @change="actualizarValor(i, $event)"
+                class="input text-xs"
+              >
+                <option
+                  v-for="opt in i.options"
+                  :key="opt"
+                  :value="opt"
+                  :selected="i.type==='select-multiple'
+                    ? i.value.includes(opt)
+                    : i.value===opt"
+                >
+                  {{ opt }}
+                </option>
+              </select>
+            </template>
+
+            <template v-else>
+              <input
+                type="text"
+                :value="i.value"
+                @input="actualizarValor(i, $event)"
+                class="input text-xs"
+              />
+            </template>
+          </div>
+
         </div>
       </div>
     </section>

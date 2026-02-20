@@ -2,9 +2,9 @@ const name = 'QFill';
 const author_name = 'Víctor J.';
 const header_version = 'v1.0.0 (Beta)';
 const header_description = 'Auto rellenar formularios de forma automatizado y personalizado';
-const isProd = true;
-const isDev = false;
-const env = 'Release';
+const isProd = false;
+const isDev = true;
+const env = 'Dev';
 
 const extension = {
     name,

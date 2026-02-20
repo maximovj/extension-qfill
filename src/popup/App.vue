@@ -49,7 +49,7 @@ const actualizarValor = (input, event) => {
 /* Tipos detectados dinámicamente */
 const tiposDisponibles = computed(() => {
   const tipos = new Set(inputs.value.map(i => i.type))
-  return ["all", ...tipos]
+  return ["all", "name", "id", ...tipos]
 })
 
 /* Filtrado + búsqueda */
@@ -62,6 +62,14 @@ const inputsFiltrados = computed(() => {
 
     const coincideTipo =
       filtroTipo.value === "all" || i.type === filtroTipo.value
+
+    if(filtroTipo.value === "id") {
+      return filtroTipo.value === "id" && i.id !== null;
+    }
+
+    if(filtroTipo.value === "name") {
+      return filtroTipo.value === "name" && i.name !== null;
+    }
 
     return coincideBusqueda && coincideTipo
   })

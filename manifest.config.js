@@ -33,7 +33,7 @@ export default defineManifest({
   commands: {
     "scan-page": {
       suggested_key: {
-        default: "Ctrl+Shift+S",
+        default: "Ctrl+Shift+L",
       },
       description: "Escanear en busca de INPUTS sobre está página",
     },

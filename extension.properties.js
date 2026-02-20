@@ -6,7 +6,6 @@ const env =  process.env.VITE_EXTENSION_MODE || 'dev';
 const isProd = env === 'production' || env === 'prod';
 const isDev = env === 'dev' || env === 'local';
 const name = isProd ? 'QFill' : 'QFill (Dev)';
-const host_permissions = isDev ? ['http://*/*'] : ['http://*/*', 'https://*/*'];
 
 const extension = {
     name,
@@ -14,8 +13,10 @@ const extension = {
     version: pkg.version,
     description: pkg.description,
     default_title: `${name} : ${pkg.description}`,
-    host_permissions,
+    host_permissions:  ['http://*/*', 'https://*/*'],
     permissions: [
+        'storage',
+        'tabs',
         'activeTab',
         'scripting',
         'sidePanel',

@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import App from './views/App.vue'
+import './events/addListener.js';
 
 // Modo de desarrollo
 const timestamps = new Date().toISOString(); 

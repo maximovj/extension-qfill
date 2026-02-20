@@ -8,7 +8,7 @@ const isDev = env === 'dev' || env === 'local';
 const name = isProd ? 'QFill' : 'QFill (Dev)';
 const host_permissions = isDev ? ['http://*/*'] : ['http://*/*', 'https://*/*'];
 
-export default {
+const extension = {
     name,
     author_name: pkg.author.name,
     version: pkg.version,
@@ -26,4 +26,6 @@ export default {
     env,
     isDev,
     isProd
-}
+};
+
+export default extension;

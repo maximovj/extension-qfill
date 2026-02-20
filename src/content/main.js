@@ -1,7 +1,11 @@
 import { createApp } from 'vue'
 import App from './views/App.vue'
 
-console.log('[CRXJS] Hello world from content script!')
+// Modo de desarrollo
+const timestamps = new Date().toISOString(); 
+alert('Inicializando extensión QFill (DEV)... ');
+console.log('Timestamps: ' + timestamps);
+console.log('[CRXJS] Hello world from content script!');
 
 /**
  * Mount the Vue app to the DOM.

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue"
+import extConfig from '@/extension.config.js'
 
 const search = ref("")
 const filtroTipo = ref("all")
@@ -99,12 +100,12 @@ const rellenarInputAnimado = (input) => {
     <div class="flex flex-col">
       <div class="flex justify-between items-center">
         <div class="flex items-center">
-          <h1 class="text-sm font-semibold">QFill (Dev)</h1>
+          <h1 class="text-sm font-semibold">{{ extConfig.name }}</h1>
         </div>
-        <span>v1.0.0</span>
+        <span>{{ extConfig.version  }}</span>
       </div>
       <div>
-        <p>Rellenado de formularios con perfiles personalizados</p>
+        <p>{{ extConfig.description }}</p>
       </div>
     </div>
     

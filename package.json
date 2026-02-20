@@ -6,7 +6,7 @@
     "name": "Víctor J.",
     "email": "maximovj@outlook.com"
   },
-  "description": "Rellenado de formularios con perfiles personalizados",
+  "description": "Auto rellenar formularios de forma automatizado y personalizado",
   "private": true,
   "scripts": {
     "dev": "vite",

@@ -11,7 +11,8 @@ export default function scanInputs(soloVisibles = false) {
 
             // 🔥 Generamos ID único estable
             if (!el.dataset.autofillId) {
-                el.dataset.autofillId = `af-${Date.now()}-${index}`;
+                el.dataset.autofillId = el.dataset.autofillId ||
+                `af-${btoa((el.name || '') + (el.id || '') + index)}`;
             }
 
             let value;

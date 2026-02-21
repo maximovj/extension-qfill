@@ -230,6 +230,9 @@ const rellenarInputAnimado = (input) => {
               <div class="text-[10px] text-[var(--text-secondary)]">
                 {{ i.type }} • {{ i.id || 'sin-id' }}
               </div>
+              <div class="text-[10px] text-[var(--text-secondary)]">
+                id. {{ i.autofillId }}
+              </div>
             </div>
 
             <button

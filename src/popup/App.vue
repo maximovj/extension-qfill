@@ -10,11 +10,21 @@ const inputs = ref([]);
 const soloVisibles = ref(true); // default: solo inputs visibles
 const esEscaneado = ref(false);
 
+const fileJsonRef = ref(null);
+const nombreArchivoJson = ref(null)
+const errorJson = ref(null);
+const successJson = ref(null);
+
 const segment = "px-3 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg)] transition";
 const activeSegment = "px-3 py-1 bg-[var(--primary)] text-white";
 
 const obtenerInputs = () => {
+    fileJsonRef.value = null;
+    successJson.value = null;
+    errorJson.value = null;
+    nombreArchivoJson.value = null; 
     filtroTipo.value = 'all';
+
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(
         tabs[0].id,
@@ -33,9 +43,8 @@ const rellenarInput = (input) => {
 };
 
 const rellenarTodos = () => {
-    const seleccionados = inputs.value.filter( i => i.selected);
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillAllInputs', data: seleccionados });
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillAllInputs', data: inputsSeleccionados.value });
     });
 };
 
@@ -50,6 +59,76 @@ const actualizarValor = (input, event) => {
 const cambiarSelectedATodos = (x) => {
   inputs.value = inputs.value.map(item => ({...item, selected: x}));
 }
+
+const abrirSelectorJSON = () => {
+  fileJsonRef.value?.click()
+}
+
+const importarJSON = (event) => {
+  inputs.value = [];
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  successJson.value = null;
+  errorJson.value = null;
+  nombreArchivoJson.value = file.name;
+  const reader = new FileReader()
+
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result)
+
+      // ✅ Validación
+      if (!Array.isArray(data)) {
+        throw new Error("El JSON debe ser un array de objetos")
+      }
+
+      const esValido = data.every(item =>
+        item &&
+        typeof item === "object" &&
+        "id" in item &&
+        "name" in item &&
+        "value" in item &&
+        "type" in item &&
+        "autofillId" in item &&
+        "options" in item
+      )
+
+      if (!esValido) {
+        throw new Error("El JSON no tiene la estructura correcta")
+      }
+
+      // por ejemplo, reemplazar tus inputs actuales
+      inputs.value = data
+      esEscaneado.value = true
+      successJson.value = "✔️ JSON importado correctamente";
+
+    } catch (err) {
+      errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
+    } finally {
+      // Limpiar input para poder volver a seleccionar el mismo archivo
+      event.target.value = null
+    }
+  }
+
+  reader.readAsText(file)
+}
+
+const exportarJSON = () => {
+  const dataStr = JSON.stringify(inputsSeleccionados.value, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "inputs-export.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
+// Inputs seleccionados
+const inputsSeleccionados = computed(() => inputs.value.filter( i => i.selected));
 
 // Cantidad de seleccionados
 const totalSelecionados = computed(() => {
@@ -156,9 +235,38 @@ const rellenarInputAnimado = (input) => {
         </button>
       </div>
 
-      <button @click="obtenerInputs" class="btn-primary w-full">
-        Escanear página
-      </button>
+      <div>
+        <button @click="obtenerInputs" class="btn-primary w-full">
+          Escanear página
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ===================== -->
+    <!-- 🟦 MÓDULO 1: IMPORTAR JSON -->
+    <!-- ===================== -->
+    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+      <h2 class="text-sm font-semibold">Importación JSON</h2>
+      <div>
+
+        <p class="my-2">{{ nombreArchivoJson || 'Seleccione un archivo JSON' }}</p>
+        <p class="my-2 text-red-400 font-medium" v-if="errorJson">{{ errorJson }}</p>
+        <p class="my-2 text-green-400 font-medium" v-if="successJson">{{ successJson }}</p>
+
+        <button @click="abrirSelectorJSON" class="btn-primary w-full">
+          Importar JSON
+        </button>
+
+        <input
+          ref="fileJsonRef"
+          @change="importarJSON"
+          type="file"
+          accept="application/json"
+          hidden
+        />
+        
+      </div>
     </section>
 
 
@@ -216,29 +324,39 @@ const rellenarInputAnimado = (input) => {
           </h2>
         </div>
         
-        <div>
-          <button
-            @click="rellenarTodos()"
-            class="text-[10px] text-green-600 hover:underline"
-          >
-            Rellenar Seleccionados ({{ totalSelecionados }})
-          </button>
-        </div>
-        <div>
-          <button
-            @click="cambiarSelectedATodos(true)"
-            class="text-[10px] text-green-600 hover:underline"
-          >
-            Seleccionar todos
-          </button>
-        </div>
-        <div>
-          <button
-            @click="cambiarSelectedATodos(false)"
-            class="text-[10px] text-green-600 hover:underline"
-          >
-            Deseleccionar todos
-          </button>
+        <div class="grid grid-cols-2">
+          <div>
+            <button
+              @click="cambiarSelectedATodos(true)"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Seleccionar todos
+            </button>
+          </div>
+          <div>
+            <button
+              @click="cambiarSelectedATodos(false)"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Deseleccionar todos
+            </button>
+          </div>
+          <div>
+            <button
+              @click="rellenarTodos()"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Rellenar Seleccionados ({{ totalSelecionados }})
+            </button>
+          </div>
+          <div>
+            <button
+              @click="exportarJSON()"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Exportar a JSON ({{ totalSelecionados }})
+            </button>
+          </div>
         </div>
       </div>
       

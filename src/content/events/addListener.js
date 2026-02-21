@@ -5,12 +5,12 @@ import fillInputById from './fillInputById.js'
 // Obtener inputs
 // Escuchar mensajes del popup
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.action === 'getInputs') {
+    if (msg.action === 'scanInputs') {
         const soloVisibles = msg.soloVisibles || false;
         sendResponse(scanInputs(soloVisibles));
     }
 
-    if (msg.action === 'fillInput') {
+    if (msg.action === 'fillInputById') {
         const { id, name, value, autofillId } = msg.data; // objeto: {id, name, value, type, autofillId, options}
         fillInputById(autofillId, value);
         sendResponse({ status: 'ok' });

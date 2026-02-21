@@ -18,7 +18,7 @@ const obtenerInputs = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(
         tabs[0].id,
-        { action: 'getInputs', soloVisibles: soloVisibles.value === true }, // forzar booleano
+        { action: 'scanInputs', soloVisibles: soloVisibles.value === true }, // forzar booleano
         (response) => { inputs.value = response; }
         );
         esEscaneado.value = true;
@@ -27,7 +27,7 @@ const obtenerInputs = () => {
 
 const rellenarInput = (input) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillInput', data: input });
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillInputById', data: input });
         esEscaneado.value = true;
     });
 };

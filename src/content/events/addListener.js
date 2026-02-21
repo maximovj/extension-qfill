@@ -1,6 +1,5 @@
-import getAllInputs from './getAllInputs.js';
-import fillInput from './fillInput.js';
-import isVisible from './isVisible.js';
+import scanInputs from './scanInputs.js'
+import fillInputById from './fillInputById.js'
 
 // Escuchar mensajes del popup o background
 // Obtener inputs
@@ -8,21 +7,19 @@ import isVisible from './isVisible.js';
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.action === 'getInputs') {
         const soloVisibles = msg.soloVisibles || false;
-        sendResponse(getAllInputs(soloVisibles));
+        sendResponse(scanInputs(soloVisibles));
     }
 
     if (msg.action === 'fillInput') {
-        const { id, name, value } = msg.data;
-        let el = id ? document.getElementById(id) : document.querySelector(`[name="${name}"]`);
-        fillInput(el, value);
+        const { id, name, value, autofillId } = msg.data; // objeto: {id, name, value, type, autofillId, options}
+        fillInputById(autofillId, value);
         sendResponse({ status: 'ok' });
     }
 
     if (msg.action === 'fillAllInputs') {
-        const allData = msg.data; // array de {id,name,value}
+        const allData = msg.data; // array de objetos: {id, name, value, type, autofillId, options}
         allData.forEach(input => {
-        const el = input.id ? document.getElementById(input.id) : document.querySelector(`[name="${input.name}"]`);
-        fillInput(el, input.value);
+            fillInputById(input.autofillId, input.value);
         });
         sendResponse({ status: 'ok' });
     }

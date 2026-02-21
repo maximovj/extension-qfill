@@ -33,8 +33,9 @@ const rellenarInput = (input) => {
 };
 
 const rellenarTodos = () => {
+    const seleccionados = inputs.value.filter( i => i.selected);
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillAllInputs', data: inputs.value });
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillAllInputs', data: seleccionados });
     });
 };
 
@@ -45,6 +46,12 @@ const actualizarValor = (input, event) => {
     else if (input.type === 'select-multiple') input.value = Array.from(event.target.selectedOptions).map(opt => opt.value);
     else input.value = event.target.value;
 };
+
+// Cantidad de seleccionados
+const totalSelecionados = computed(() => {
+  const cantidad = inputs.value.filter( i => i.selected)?.length || 0;
+  return cantidad > 99 ? '+99' : cantidad;
+});
 
 /* Tipos detectados dinámicamente */
 const tiposDisponibles = computed(() => {
@@ -101,7 +108,7 @@ const rellenarInputAnimado = (input) => {
 </script>
 
 <template>
-  <div class="space-y-5 text-xs">
+  <div class="space-y-5 text-xs perspective-normal">
 
     <!-- ===================== -->
     <!-- 🟦 TITULO / ENCABEZADO -->
@@ -190,6 +197,14 @@ const rellenarInputAnimado = (input) => {
       v-if="Object.keys(inputsAgrupados)?.length"
       class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[320px] overflow-y-auto"
     >
+      <div class="fixed right-13
+                    min-w-7 h-7 px-1 py-1
+                    bg-cyan-500
+                    rounded-full 
+                    flex items-center justify-center
+                    text-[10p] font-semibold">
+          <span>{{ totalSelecionados }}</span>
+      </div>
       <div class="flex flex-col">
         <div class="flex justify-between items-center">
           <h2 class="text-sm font-semibold">
@@ -201,12 +216,11 @@ const rellenarInputAnimado = (input) => {
             @click="rellenarTodos()"
             class="text-[10px] text-green-600 hover:underline"
           >
-            Rellenar Todos
+            Rellenar Seleccionados ({{ totalSelecionados }})
           </button>
         </div>
       </div>
       
-
       <div
         v-for="(grupo, formName) in inputsAgrupados"
         :key="formName"
@@ -223,24 +237,29 @@ const rellenarInputAnimado = (input) => {
           :class="animando === i.id ? 'ring-2 ring-green-500' : ''"
         >
           <div class="flex justify-between">
-            <div>
+            <div class="truncate w-full w-max-1/2 overflow-auto">
               <div class="font-medium">
                 {{ i.name || 'Sin nombre' }}
               </div>
               <div class="text-[10px] text-[var(--text-secondary)]">
                 {{ i.type }} • {{ i.id || 'sin-id' }}
               </div>
-              <div class="text-[10px] text-[var(--text-secondary)]">
-                id. {{ i.autofillId }}
+              <div class="text-[10px] truncate max-w-[169px] text-[var(--text-secondary)]">
+                id. {{ i.autofillId.slice(0, 30) }}...
               </div>
             </div>
 
-            <button
-              @click="rellenarInputAnimado(i)"
-              class="text-[10px] text-green-600 hover:underline"
-            >
-              Rellenar
-            </button>
+            <div class="flex flex-col gap-2">
+                <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
+                <button
+                  @click="rellenarInputAnimado(i)"
+                  class="text-[10px] text-green-600 hover:underline"
+                >
+                  Rellenar
+                </button>
+            </div>
+
+            
           </div>
 
           <!-- Editor dinámico -->

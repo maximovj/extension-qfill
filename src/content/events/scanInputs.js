@@ -37,7 +37,8 @@ export default function scanInputs(soloVisibles = false) {
                 name: el.name || null,
                 type: el.type || el.tagName.toLowerCase(),
                 value,
-                options
+                options,
+                selected: true,
             };
         });
 }

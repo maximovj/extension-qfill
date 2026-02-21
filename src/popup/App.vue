@@ -47,6 +47,10 @@ const actualizarValor = (input, event) => {
     else input.value = event.target.value;
 };
 
+const cambiarSelectedATodos = (x) => {
+  inputs.value = inputs.value.map(item => ({...item, selected: x}));
+}
+
 // Cantidad de seleccionados
 const totalSelecionados = computed(() => {
   const cantidad = inputs.value.filter( i => i.selected)?.length || 0;
@@ -202,7 +206,7 @@ const rellenarInputAnimado = (input) => {
                     bg-cyan-500
                     rounded-full 
                     flex items-center justify-center
-                    text-[10p] font-semibold">
+                    text-[10p] font-semibold animate-pulse">
           <span>{{ totalSelecionados }}</span>
       </div>
       <div class="flex flex-col">
@@ -211,12 +215,29 @@ const rellenarInputAnimado = (input) => {
             Resultados ({{ inputsFiltrados?.length }})
           </h2>
         </div>
+        
         <div>
           <button
             @click="rellenarTodos()"
             class="text-[10px] text-green-600 hover:underline"
           >
             Rellenar Seleccionados ({{ totalSelecionados }})
+          </button>
+        </div>
+        <div>
+          <button
+            @click="cambiarSelectedATodos(true)"
+            class="text-[10px] text-green-600 hover:underline"
+          >
+            Seleccionar todos
+          </button>
+        </div>
+        <div>
+          <button
+            @click="cambiarSelectedATodos(false)"
+            class="text-[10px] text-green-600 hover:underline"
+          >
+            Deseleccionar todos
           </button>
         </div>
       </div>

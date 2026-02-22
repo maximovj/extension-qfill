@@ -46,7 +46,9 @@ export default function selectElementEnable() {
 
       chrome.runtime.sendMessage({
         action: "selectElementItem",
-        data
+        payload: {
+          data
+        }
       });
     }
   };

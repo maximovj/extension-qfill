@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
-import gListers from "@/constants.js"
 import extConfig from '@/extension.config.js'
+import constants from '@/constants.config.js'
+import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.config.js'
 
 const search = ref("")
 const filtroTipo = ref("all")
@@ -19,39 +20,35 @@ const successJson = ref(null);
 const segment = "px-3 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg)] transition";
 const activeSegment = "px-3 py-1 bg-[var(--primary)] text-white";
 
-const obtenerInputs = () => {
+const obtenerInputs = async () => {
     fileJsonRef.value = null;
     successJson.value = null;
     errorJson.value = null;
     nombreArchivoJson.value = null; 
     filtroTipo.value = 'all';
 
-    chrome.runtime.sendMessage({ 
-      type: gListers.popup.scanInputs.type,
-      desc: gListers.popup.scanInputs.desc,
-      payload: {
-        event: '',
-        action: gListers.popup.scanInputs.action,
-        data: soloVisibles.value === true 
-      }},
-      (response) => { 
-        inputs.value = response;
-        esEscaneado.value = true;
-      });
+    const response = await sendMessage(constants.SCAN_INPUTS, {soloVisibles: soloVisibles.value === true});
+    if(response?.length) {
+      inputs.value = response;
+      esEscaneado.value = true;
+    } else {
+      inputs.value = [];
+      esEscaneado.value = false;
+    }
+
+    const disp = await dispatchToBackground(constants.SCAN_INPUTS, {soloVisibles: soloVisibles.value === true});
+    alert(JSON.stringify(disp, null, -2));
 
 };
 
-const rellenarInput = (input) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { type: 'fillInputById', data: input });
-        esEscaneado.value = true;
-    });
+const rellenarInput = async (input) => {
+    const response = await sendMessage(constants.FILL_INPUT_BY_ID, { data: input });
+    esEscaneado.value = true;
 };
 
-const rellenarTodos = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { type: 'fillAllInputs', data: inputsSeleccionados.value });
-    });
+const rellenarTodos = async () => {
+  const response = await sendMessage(constants.FILL_ALL_INPUTS, { data: inputsSeleccionados.value });
+  esEscaneado.value = true;
 };
 
 // Actualiza valores editables en tabla
@@ -195,20 +192,9 @@ const rellenarInputAnimado = (input) => {
 }
 
 /* Cargar popup */
-onMounted(() => {
+onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
-  chrome.runtime.sendMessage({ 
-      type: gListers.popup.connect.type,
-      desc: gListers.popup.connect.desc,
-      payload: {
-        event: '',
-        action: gListers.popup.connect.action,
-        data: soloVisibles.value === true 
-      }},
-      (response) => { 
-        console.log("Conexión establecida con background y scripts_content")
-      });
-
+  await sendMessage(constants.CONNECT);
 });
 </script>
 

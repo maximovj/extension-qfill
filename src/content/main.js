@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import extConfig from '@/extension.config.js'
+import constants from '@/constants.config.js'
+
 import App from './views/App.vue'
 import './addListener.js';
 

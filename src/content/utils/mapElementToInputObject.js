@@ -33,9 +33,14 @@ export default function mapElementToInputObject(el, index = 0) {
 
     return {
         autofillId: el.dataset.autofillId,
+        type: el.type || el.tagName.toLowerCase(),
         id: el.id || null,
         name: el.name || null,
-        type: el.type || el.tagName.toLowerCase(),
+        placeholder: el.placeholder || null,
+        label: el.label || null,
+        ariaLabel: el.ariaLabel || null, 
+        title: el.title || null, 
+        alt: el.alt || null, 
         value,
         options,
         selected: true,

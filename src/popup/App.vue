@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import extConfig from '@/extension.config.js'
-import constants from '@/constants.config.js'
+import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.config.js'
 
 const search = ref("")
@@ -21,33 +21,41 @@ const segment = "px-3 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg)] tra
 const activeSegment = "px-3 py-1 bg-[var(--primary)] text-white";
 
 const obtenerInputs = async () => {
-    fileJsonRef.value = null;
-    successJson.value = null;
-    errorJson.value = null;
-    nombreArchivoJson.value = null; 
-    filtroTipo.value = 'all';
+  fileJsonRef.value = null;
+  successJson.value = null;
+  errorJson.value = null;
+  nombreArchivoJson.value = null; 
+  filtroTipo.value = 'all';
 
-    const response = await sendMessage(constants.SCAN_INPUTS, {soloVisibles: soloVisibles.value === true});
-    if(response?.length) {
-      inputs.value = response;
-      esEscaneado.value = true;
-    } else {
-      inputs.value = [];
-      esEscaneado.value = false;
-    }
+  const response = await sendMessage(
+    MESSAGE_TYPES.UI_EVENT,
+    ACTIONS.SCAN_INPUTS, 
+    { soloVisibles: soloVisibles.value === true });
 
-    const disp = await dispatchToBackground(constants.SCAN_INPUTS, {soloVisibles: soloVisibles.value === true});
-    alert(JSON.stringify(disp, null, -2));
-
+  if(response?.length) {
+    inputs.value = response;
+    esEscaneado.value = true;
+  } else {
+    inputs.value = [];
+    esEscaneado.value = false;
+  }
 };
 
 const rellenarInput = async (input) => {
-    const response = await sendMessage(constants.FILL_INPUT_BY_ID, { data: input });
-    esEscaneado.value = true;
+  const response = await sendMessage(
+      MESSAGE_TYPES.UI_EVENT,
+      ACTIONS.SCAN_INPUTS, 
+      { data: input });
+  
+  esEscaneado.value = true;
 };
 
 const rellenarTodos = async () => {
-  const response = await sendMessage(constants.FILL_ALL_INPUTS, { data: inputsSeleccionados.value });
+  const response = await sendMessage(
+      MESSAGE_TYPES.UI_EVENT,
+      ACTIONS.SCAN_INPUTS, 
+      { data: inputsSeleccionados.value });
+  
   esEscaneado.value = true;
 };
 
@@ -194,7 +202,7 @@ const rellenarInputAnimado = (input) => {
 /* Cargar popup */
 onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
-  await sendMessage(constants.CONNECT);
+  await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
 });
 </script>
 

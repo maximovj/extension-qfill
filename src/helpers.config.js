@@ -17,13 +17,13 @@ export function sendToActiveTab(message) {
     });
 }
 
-export async function dispatchToActiveTab(type, payload) {
-    return await sendToActiveTab({ type, payload });
+export async function dispatchToActiveTab(type, action, payload = {}) {
+    return await sendToActiveTab({ type, action, payload });
 }
 
-export function sendMessage(type, payload = {}) {
+export function sendMessage(type, action, payload = {}) {
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type, payload }, (response) => {
+        chrome.runtime.sendMessage({ type, action, payload }, (response) => {
         if (chrome.runtime.lastError) {
             reject(chrome.runtime.lastError);
         } else {
@@ -33,9 +33,9 @@ export function sendMessage(type, payload = {}) {
     });
 }
 
-export const dispatchRuntime = (type) => (payload = {}) =>
+export const dispatchRuntime = (type, action) => (payload = {}) =>
     new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type, payload }, (res) => {
+        chrome.runtime.sendMessage({ type, action, payload }, (res) => {
         if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
         else resolve(res);
         });
@@ -53,6 +53,6 @@ export function sendToBackground(message) {
     });
 }
 
-export async function dispatchToBackground(type, payload) {
-    return await sendToBackground({ type, payload });
+export async function dispatchToBackground(type, action, payload = {}) {
+    return await sendToBackground({ type, action, payload });
 }

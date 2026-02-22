@@ -1,6 +1,6 @@
 import pkg from './package.json';
 import extConfig from './src/extension.config';
-import constants from './src/constants.config.js';
+import { MESSAGE_TYPES, ACTIONS } from './src/constants.config.js';
 
 const extension = {
     ...extConfig,

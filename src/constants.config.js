@@ -1,15 +1,19 @@
-const MESSAGE_TYPES = {
+export const MESSAGE_TYPES = {
+    SYSTEM_EVENT: "SYSTEM_EVENT",
+    STORAGE_EVENT: "STORAGE_EVENT",
+    UI_EVENT: "UI_EVENT",
+};
+
+export const ACTIONS = {
     CONNECT: "system.connect",
     STORAGE_GET: "storage.get",
     STORAGE_SET: "storage.set",
 
     // Eventos que manipula el DOM
-    SCAN_INPUTS: "content.scanInputs",
-    FILL_INPUT_BY_ID: "content.fillInputById",
-    FILL_ALL_INPUTS: "content.fillAllInputs",
-    SELECTOR_MODE_ENABLE: "content.selectorModeEnable",
-    SELECTOR_MODE_SET_ITEM: "content.selectorModeSetItem",
-    SELECTOR_MODE_GET_ITEM: "content.selectorModeGetItem",
+    SCAN_INPUTS: "ui.scanInputs",
+    FILL_INPUT_BY_ID: "ui.fillInputById",
+    FILL_ALL_INPUTS: "ui.fillAllInputs",
+    SELECTOR_MODE_ENABLE: "ui.selectorModeEnable",
+    SELECTOR_MODE_SET_ITEM: "ui.selectorModeSetItem",
+    SELECTOR_MODE_GET_ITEM: "ui.selectorModeGetItem",
 };
-
-export default MESSAGE_TYPES;

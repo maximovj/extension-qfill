@@ -1,32 +1,33 @@
-import extConfig from '@/extension.config.js'
+import extConfig from '@/extension.config.js';
 
 if(extConfig.isDev) {
-  // Modo de desarrollo
-  const timestamps = new Date().toISOString(); 
-  console.log('Inicializando [SERVICE WORKER] extensión QFill (DEV)... ');
-  console.log('Timestamps: ' + timestamps);
+    // Modo de desarrollo
+    const timestamps = new Date().toISOString(); 
+    console.log('Inicializando [SERVICE WORKER] extensión QFill (DEV)... ');
+    console.log('Timestamps: ' + timestamps);
 }
 
+// Almacenamiento 
+let selectElementItem = null;
+
+// !! Escuchar mensajes del default_popup o content_scripts
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  switch (msg.action) {
-    case 'rellenarFormulario':
-      console.log('Rellenando formulario con datos:', msg.data);
-      sendResponse({ status: 'ok' });
-      break;
+    console.log("Message Recibio:", msg);
+    const { type, desc, payload } = msg;
+    console.log("Ejecutando acción:", desc);
 
-    case 'getPerfil':
-      const perfil = { nombre: 'Juan', edad: 30 };
-      sendResponse(perfil);
-      break;
+    if(type.contains("popup.ui")) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { 
+                event: payload.event, 
+                action: payload.action,
+                data: payload.data,
+            }, 
+            (response) => {
+                sendResponse(response);
+            });
+        });
+    }
 
-    case 'getPerfilAsync':
-      chrome.storage.sync.get(['perfil'], (result) => {
-        // Devuelve un valor por defecto si no hay datos
-        sendResponse(result.perfil || { nombre: 'Juan', edad: 30 });
-      });
-      return true; // MUY IMPORTANTE para mantener el canal abierto
-
-    default:
-      console.warn('Acción desconocida:', msg.action);
-  }
+    return true; // importante para async
 });

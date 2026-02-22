@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
+import gListers from "@/constants.js"
 import extConfig from '@/extension.config.js'
 
 const search = ref("")
@@ -25,26 +26,31 @@ const obtenerInputs = () => {
     nombreArchivoJson.value = null; 
     filtroTipo.value = 'all';
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(
-        tabs[0].id,
-        { action: 'scanInputs', soloVisibles: soloVisibles.value === true }, // forzar booleano
-        (response) => { inputs.value = response; }
-        );
+    chrome.runtime.sendMessage({ 
+      type: gListers.popup.scanInputs.type,
+      desc: gListers.popup.scanInputs.desc,
+      payload: {
+        event: '',
+        action: gListers.popup.scanInputs.action,
+        data: soloVisibles.value === true 
+      }},
+      (response) => { 
+        inputs.value = response;
         esEscaneado.value = true;
-    });
+      });
+
 };
 
 const rellenarInput = (input) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillInputById', data: input });
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'fillInputById', data: input });
         esEscaneado.value = true;
     });
 };
 
 const rellenarTodos = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'fillAllInputs', data: inputsSeleccionados.value });
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'fillAllInputs', data: inputsSeleccionados.value });
     });
 };
 
@@ -188,6 +194,22 @@ const rellenarInputAnimado = (input) => {
   }, 600);
 }
 
+/* Cargar popup */
+onMounted(() => {
+  console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
+  chrome.runtime.sendMessage({ 
+      type: gListers.popup.connect.type,
+      desc: gListers.popup.connect.desc,
+      payload: {
+        event: '',
+        action: gListers.popup.connect.action,
+        data: soloVisibles.value === true 
+      }},
+      (response) => { 
+        console.log("Conexión establecida con background y scripts_content")
+      });
+
+});
 </script>
 
 <template>

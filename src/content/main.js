@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import extConfig from '@/extension.config.js'
 import App from './views/App.vue'
-import './events/addListener.js';
+import './addListener.js';
 
 if(extConfig.isDev) {
 // Modo de desarrollo

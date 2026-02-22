@@ -9,7 +9,7 @@ const filtroTipo = ref("all")
 const animando = ref(null)
 
 const inputs = ref([]);
-const soloVisibles = ref(true); // default: solo inputs visibles
+const modoEscaneo = ref("visibles"); // valores: "visibles" | "todos" | "json"
 const esEscaneado = ref(false);
 
 const fileJsonRef = ref(null);
@@ -30,7 +30,7 @@ const obtenerInputs = async () => {
   const response = await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
     ACTIONS.SCAN_INPUTS, 
-    { soloVisibles: soloVisibles.value === true });
+    { soloVisibles: modoEscaneo.value === "visibles" });
 
   if(response?.length) {
     inputs.value = response;
@@ -67,13 +67,31 @@ const actualizarValor = (input, event) => {
     else input.value = event.target.value;
 };
 
+const cambiarModoEscaneo = (modo) => {
+  switch(modo) {
+    case 'json': 
+      fileJsonRef.value = null;
+      successJson.value = null;
+      errorJson.value = null;
+      nombreArchivoJson.value = null;
+      modoEscaneo.value = 'json';
+      break;
+    case 'visibles': 
+      modoEscaneo.value = 'visibles';
+      break;
+    default:
+      modoEscaneo.value = 'todos';
+  }
+}
+
 const cambiarSelectedATodos = (x) => {
   inputs.value = inputs.value.map(item => ({...item, selected: x}));
 }
 
-const abrirSelectorJSON = () => {
-  fileJsonRef.value?.click()
-}
+const activarImportacion = () => {
+  modoEscaneo.value = "json";
+  fileJsonRef.value?.click();
+};
 
 const importarJSON = (event) => {
   inputs.value = [];
@@ -238,41 +256,37 @@ onMounted( async () => {
 
       <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-fit">
         <button
-          @click="soloVisibles = true"
-          :class="soloVisibles ? activeSegment : segment"
+          @click="cambiarModoEscaneo('visibles')"
+          :class="modoEscaneo === 'visibles' ? activeSegment : segment"
         >
           Visibles
         </button>
         <button
-          @click="soloVisibles = false"
-          :class="!soloVisibles ? activeSegment : segment"
+          @click="cambiarModoEscaneo('todos')"
+          :class="modoEscaneo === 'todos' ? activeSegment : segment"
         >
           Todos
         </button>
-      </div>
-
-      <div>
-        <button @click="obtenerInputs" class="btn-primary w-full">
-          Escanear página
+        <button
+          @click="cambiarModoEscaneo('json')"
+          :class="modoEscaneo === 'json' ? activeSegment : segment"
+        >
+          Importar JSON
         </button>
       </div>
 
-    </section>
+      <div v-if="modoEscaneo === 'visibles'">
+        <p>Está opción solo buscará inputs visibles de la página actual</p>
+      </div>
 
-    <!-- ===================== -->
-    <!-- 🟦 MÓDULO 1: IMPORTAR JSON -->
-    <!-- ===================== -->
-    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-      <h2 class="text-sm font-semibold">Importación JSON</h2>
-      <div>
+      <div v-if="modoEscaneo === 'todos'">
+        <p>Está opción solo buscará todos los inputs de la página actual</p>
+      </div>
 
+      <div v-if="modoEscaneo === 'json'">
         <p class="my-2">{{ nombreArchivoJson || 'Seleccione un archivo JSON' }}</p>
         <p class="my-2 text-red-400 font-medium" v-if="errorJson">{{ errorJson }}</p>
         <p class="my-2 text-green-400 font-medium" v-if="successJson">{{ successJson }}</p>
-
-        <button @click="abrirSelectorJSON" class="btn-primary w-full">
-          Importar JSON
-        </button>
 
         <input
           ref="fileJsonRef"
@@ -281,8 +295,17 @@ onMounted( async () => {
           accept="application/json"
           hidden
         />
-        
       </div>
+
+      <div class="grid grid-cols-1 gap-1">
+        <button @click="activarImportacion" v-if="modoEscaneo === 'json'" class="btn-primary w-full">
+          Importar Json
+        </button>
+        <button @click="obtenerInputs" v-else class="btn-primary w-full">
+          Escanear página
+        </button>
+      </div>
+
     </section>
 
 
@@ -362,7 +385,7 @@ onMounted( async () => {
               @click="rellenarTodos()"
               class="text-[10px] text-green-600 hover:underline"
             >
-              Rellenar Seleccionados ({{ totalSelecionados }})
+              Rellenar seleccionados ({{ totalSelecionados }})
             </button>
           </div>
           <div>

@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from "vue"
 import extConfig from '@/extension.config.js'
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.config.js'
+import generarFakeValue from './utils/generarFakeValue';
+import generarPerfilFake from './utils/generarPerfilFake';
 
 const search = ref("")
 const filtroTipo = ref("all")
@@ -44,7 +46,7 @@ const obtenerInputs = async () => {
 const rellenarInput = async (input) => {
   const response = await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
-      ACTIONS.SCAN_INPUTS, 
+      ACTIONS.FILL_INPUT_BY_ID, 
       { data: input });
   
   esEscaneado.value = true;
@@ -53,7 +55,7 @@ const rellenarInput = async (input) => {
 const rellenarTodos = async () => {
   const response = await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
-      ACTIONS.SCAN_INPUTS, 
+      ACTIONS.FILL_ALL_INPUTS, 
       { data: inputsSeleccionados.value });
   
   esEscaneado.value = true;
@@ -155,6 +157,16 @@ const exportarJSON = () => {
 
   URL.revokeObjectURL(url);
 };
+
+const aplicarFakerFiller = () => {
+  const perfil = generarPerfilFake();
+  inputs.value = inputs.value.map( i => ({
+    ...i,
+    value: generarFakeValue(i, perfil)
+  }));
+
+  esEscaneado.value = true;
+} 
 
 // Inputs seleccionados
 const inputsSeleccionados = computed(() => inputs.value.filter( i => i.selected));
@@ -394,6 +406,14 @@ onMounted( async () => {
               class="text-[10px] text-green-600 hover:underline"
             >
               Exportar a JSON ({{ totalSelecionados }})
+            </button>
+          </div>
+          <div>
+            <button
+              @click="aplicarFakerFiller()"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Aplicar Faker Filler ({{ totalSelecionados }})
             </button>
           </div>
         </div>

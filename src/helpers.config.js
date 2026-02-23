@@ -21,6 +21,7 @@ export async function dispatchToActiveTab(type, action, payload = {}) {
     return await sendToActiveTab({ type, action, payload });
 }
 
+/*
 export function sendMessage(type, action, payload = {}) {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ type, action, payload }, (response) => {
@@ -32,6 +33,25 @@ export function sendMessage(type, action, payload = {}) {
         });
     });
 }
+*/
+
+/*
+export function sendMessageTab2(tabId, type, action, payload = {}) {
+    return new Promise((resolve, reject) => {
+        chrome.tabs.sendMessage(
+            tabId,
+            { type, action, payload },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError);
+                } else {
+                    resolve(response);
+                }
+            }
+        );
+    });
+} 
+*/
 
 export const dispatchRuntime = (type, action) => (payload = {}) =>
     new Promise((resolve, reject) => {
@@ -56,3 +76,35 @@ export function sendToBackground(message) {
 export async function dispatchToBackground(type, action, payload = {}) {
     return await sendToBackground({ type, action, payload });
 }
+
+function promisifyChromeApi(fn, ...args) {
+    return new Promise((resolve, reject) => {
+        fn(...args, (response) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(response);
+            }
+        });
+    });
+}
+
+export const sendMessage = (type, action, payload = {}) =>
+    promisifyChromeApi(chrome.runtime.sendMessage, { type, action, payload });
+
+export const sendMessageTab = async (type, action, payload = {}) => {
+    const tabs = await promisifyChromeApi(
+        chrome.tabs.query,
+        { active: true, currentWindow: true }
+    );
+
+    if (!tabs.length) {
+        throw new Error("No active tab found");
+    }
+
+    return promisifyChromeApi(
+        chrome.tabs.sendMessage,
+        tabs[0].id,
+        { type, action, payload }
+    );
+};

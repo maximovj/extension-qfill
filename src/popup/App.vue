@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from "vue"
 import extConfig from '@/extension.config.js'
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.config.js'
+import extensionState from "../extensionState.config";
 import generarFakeValue from './utils/generarFakeValue';
 import generarPerfilFake from './utils/generarPerfilFake';
 
@@ -37,7 +38,7 @@ const obtenerInputs = async () => {
   const response = await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
     ACTIONS.SCAN_INPUTS, 
-    { soloVisibles: modoEscaneo.value === "visibles" });
+    { soloVisibles: modoEscaneo.value === "visibles", modoEscaneo: modoEscaneo.value });
 
   if(response?.length) {
     inputs.value = response;
@@ -129,7 +130,7 @@ const importarJSON = (event) => {
   nombreArchivoJson.value = file.name;
   const reader = new FileReader()
 
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const data = JSON.parse(e.target.result)
 
@@ -156,7 +157,14 @@ const importarJSON = (event) => {
       // por ejemplo, reemplazar tus inputs actuales
       inputs.value = data
       esEscaneado.value = true
+      modoEscaneo.value = 'json'
       successJson.value = "✔️ JSON importado correctamente";
+
+      await extensionState.setMany({
+        'ultimoEscaneo.escaneado': true,
+        'ultimoEscaneo.inputs': inputs,
+        'ultimoEscaneo.modo': 'json',
+      });
 
     } catch (err) {
       errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
@@ -188,9 +196,13 @@ const aplicarFakerFiller = () => {
     ...i,
     value: generarFakeValue(i, perfil)
   }));
-
-  esEscaneado.value = true;
+  extensionState.set('ultimoEscaneo.inputs', inputs.value);
 } 
+
+const eliminarTodoEscaneado = async () => {
+  await extensionState.reset();
+  inicializarStateConfig();
+}
 
 // Inputs seleccionados
 const inputsSeleccionados = computed(() => inputs.value.filter( i => i.selected));
@@ -253,22 +265,27 @@ const rellenarInputAnimado = (input) => {
   }, 600);
 }
 
+const inicializarStateConfig = () => {
+  esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
+  inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
+  modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
+
+  /*
+  modoSelector.value = extensionState.get('modoSelector.activo');
+  statusModoSelector.value = extensionState.get('modoSelector.status');
+  msgModoSelector.value = extensionState.get('modoSelector.mensaje');
+  itemModoSelector.value = extensionState.get('modoSelector.itemSeleccionado');
+  */
+
+}
+
 /* Cargar popup */
 onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
-  await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
   
-  /* storageModoSelector: {modoSelector, statusModoSelector, msgModoSelector, itemModoSelector} */
-  const storageModoSelector = await sendMessage( MESSAGE_TYPES.UI_EVENT, ACTIONS.SELECTOR_MODE_GET_ITEM);
-
-  if(storageModoSelector?.modoEscaneo === 'selector') {
-    modoEscaneo.value = 'selector';
-    modoSelector.value = storageModoSelector?.modoSelector;
-    statusModoSelector.value = storageModoSelector?.statusModoSelector;
-    msgModoSelector.value = storageModoSelector?.msgModoSelector;
-    itemModoSelector.value = storageModoSelector?.itemModoSelector;
-    inputs.value?.push(itemModoSelector.value);
-    esEscaneado.value = true;
+  const connect = await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
+  if(connect?.status === 'ok') {
+    inicializarStateConfig(); 
   }
 
 });
@@ -429,6 +446,14 @@ onMounted( async () => {
         </div>
         
         <div class="grid grid-cols-2">
+          <div>
+            <button
+              @click="eliminarTodoEscaneado()"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Eliminar todos los elementos
+            </button>
+          </div>
           <div>
             <button
               @click="cambiarSelectedATodos(true)"

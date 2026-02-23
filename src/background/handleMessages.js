@@ -1,6 +1,7 @@
-import { MESSAGE_TYPES, ACTIONS } from '../constants.config.js'
-import handleUIEvent from './handle/handleUIEvent.js';
-import handleSystemEvent from './handle/handleSystemEvent.js';
+import { MESSAGE_TYPES } from '../constants.config.js'
+import handleUIEvent from './handle/handleUIEvent.js'
+import handleSystemEvent from './handle/handleSystemEvent.js'
+import handleStateEvent from './handle/handleStateEvent.js'
 
 export default async function handleMessages(message, sender) {
     switch (message.type) {
@@ -10,6 +11,10 @@ export default async function handleMessages(message, sender) {
 
         case MESSAGE_TYPES.SYSTEM_EVENT: {
             return await handleSystemEvent(message);
+        }
+
+        case MESSAGE_TYPES.STATE_EVENT: {
+            return await handleStateEvent(message);
         }
 
         default: {

@@ -1,6 +1,6 @@
-import extConfig from '@/extension.config.js'
-import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
-import { sendToActiveTab, dispatchToActiveTab } from '@/helpers.config.js'
+import extConfig from '../extension.config.js'
+import { MESSAGE_TYPES, ACTIONS } from '../constants.config.js'
+import { sendToActiveTab, dispatchToActiveTab } from '../helpers.config.js'
 
 if(extConfig.isDev) {
     // Modo de desarrollo

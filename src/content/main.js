@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-import extConfig from '@/extension.config.js'
-import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
+import extConfig from '../extension.config.js'
+import { MESSAGE_TYPES, ACTIONS } from '../constants.config.js'
 
 import App from './views/App.vue'
 import './addListener.js';

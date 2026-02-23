@@ -1,6 +1,6 @@
 import mapElementToInputObject from '../utils/mapElementToInputObject';
-import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
-import { sendMessage } from '@/helpers.config.js'
+import { MESSAGE_TYPES, ACTIONS } from '../../constants.config.js'
+import { sendMessage } from '../../helpers.config.js'
 
 let elementoActual = null;
 let overlay = null;

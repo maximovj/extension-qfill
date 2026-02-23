@@ -21,38 +21,6 @@ export async function dispatchToActiveTab(type, action, payload = {}) {
     return await sendToActiveTab({ type, action, payload });
 }
 
-/*
-export function sendMessage(type, action, payload = {}) {
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type, action, payload }, (response) => {
-        if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-        } else {
-            resolve(response);
-        }
-        });
-    });
-}
-*/
-
-/*
-export function sendMessageTab2(tabId, type, action, payload = {}) {
-    return new Promise((resolve, reject) => {
-        chrome.tabs.sendMessage(
-            tabId,
-            { type, action, payload },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError);
-                } else {
-                    resolve(response);
-                }
-            }
-        );
-    });
-} 
-*/
-
 export const dispatchRuntime = (type, action) => (payload = {}) =>
     new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ type, action, payload }, (res) => {

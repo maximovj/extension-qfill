@@ -20,6 +20,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.log("Resultado de background:", {message, resultado});
             sendResponse(resultado);
         } catch (error) {
+            await extensionState.reset();
             console.log("Hubo un error en background:", error);
             sendResponse({ error: error.message });
         }

@@ -28,6 +28,7 @@ export default async function handleUIEvent(msg) {
                 });
                 return inputs;
             } catch (err) {
+                await extensionState.reset();
                 console.log("Hubo un error:", {err, msg});
                 return err;
             }
@@ -50,6 +51,7 @@ export default async function handleUIEvent(msg) {
                     ACTIONS.SELECTOR_MODE_ENABLE
                 );
             } catch (err) {
+                await extensionState.reset();
                 console.log("Hubo un error:", {err, msg});
                 return err;
             }
@@ -65,6 +67,7 @@ export default async function handleUIEvent(msg) {
                 }
                 return itemModoSelector;
             } catch (err) {
+                await extensionState.reset();
                 console.log("Hubo un error:", err);
                 return err;
             }

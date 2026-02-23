@@ -190,13 +190,13 @@ const exportarJSON = () => {
   URL.revokeObjectURL(url);
 };
 
-const aplicarFakerFiller = () => {
+const aplicarFakerFiller = async () => {
   const perfil = generarPerfilFake();
   inputs.value = inputs.value.map( i => ({
     ...i,
     value: generarFakeValue(i, perfil)
   }));
-  extensionState.set('ultimoEscaneo.inputs', inputs.value);
+  await extensionState.set('ultimoEscaneo.inputs', inputs.value);
 } 
 
 const eliminarTodoEscaneado = async () => {

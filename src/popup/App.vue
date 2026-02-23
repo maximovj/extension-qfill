@@ -162,7 +162,7 @@ const importarJSON = (event) => {
 
       await extensionState.setMany({
         'ultimoEscaneo.escaneado': true,
-        'ultimoEscaneo.inputs': inputs,
+        'ultimoEscaneo.inputs': inputs.value,
         'ultimoEscaneo.modo': 'json',
       });
 

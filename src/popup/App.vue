@@ -54,8 +54,6 @@ const rellenarInput = async (input) => {
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.FILL_INPUT_BY_ID, 
       { data: input });
-  
-  esEscaneado.value = true;
 };
 
 const rellenarTodos = async () => {
@@ -63,8 +61,6 @@ const rellenarTodos = async () => {
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.FILL_ALL_INPUTS, 
       { data: inputsSeleccionados.value });
-  
-  esEscaneado.value = true;
 };
 
 const activarModoSelector = async () => {
@@ -160,11 +156,13 @@ const importarJSON = (event) => {
       modoEscaneo.value = 'json'
       successJson.value = "✔️ JSON importado correctamente";
 
-      await extensionState.setMany({
+      // TODO : Enviarlo a Background utiliza chrome.storage.set
+      const setMany = {
         'ultimoEscaneo.escaneado': true,
         'ultimoEscaneo.inputs': inputs.value,
         'ultimoEscaneo.modo': 'json',
-      });
+      };
+      await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
 
     } catch (err) {
       errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
@@ -196,12 +194,14 @@ const aplicarFakerFiller = async () => {
     ...i,
     value: generarFakeValue(i, perfil)
   }));
-  await extensionState.set('ultimoEscaneo.inputs', inputs.value);
-} 
+  // TODO : Enviarlo a Background utiliza chrome.storage.set
+  const set = {key: 'ultimoEscaneo.inputs', value: inputs.value };
+  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET, { set });
+}
 
 const eliminarTodoEscaneado = async () => {
-  await extensionState.reset();
-  inicializarStateConfig();
+  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+  await inicializarStateConfig();
 }
 
 // Inputs seleccionados
@@ -265,18 +265,20 @@ const rellenarInputAnimado = (input) => {
   }, 600);
 }
 
-const inicializarStateConfig = () => {
-  esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
-  inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
-  modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
+const inicializarStateConfig = async () => {
+  await new Promise((resolve, reject) => {
+    esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
+    inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
+    modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
 
-  /*
-  modoSelector.value = extensionState.get('modoSelector.activo');
-  statusModoSelector.value = extensionState.get('modoSelector.status');
-  msgModoSelector.value = extensionState.get('modoSelector.mensaje');
-  itemModoSelector.value = extensionState.get('modoSelector.itemSeleccionado');
-  */
-
+    /*
+    modoSelector.value = extensionState.get('modoSelector.activo');
+    statusModoSelector.value = extensionState.get('modoSelector.status');
+    msgModoSelector.value = extensionState.get('modoSelector.mensaje');
+    itemModoSelector.value = extensionState.get('modoSelector.itemSeleccionado');
+    */
+    resolve({ status: 'ok' });
+  }).then(() => {});
 }
 
 /* Cargar popup */
@@ -285,7 +287,7 @@ onMounted( async () => {
   
   const connect = await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
   if(connect?.status === 'ok') {
-    inicializarStateConfig(); 
+    await inicializarStateConfig();
   }
 
 });
@@ -448,7 +450,7 @@ onMounted( async () => {
         <div class="grid grid-cols-2">
           <div>
             <button
-              @click="eliminarTodoEscaneado()"
+              @click="eliminarTodoEscaneado"
               class="text-[10px] text-green-600 hover:underline"
             >
               Eliminar todos los elementos

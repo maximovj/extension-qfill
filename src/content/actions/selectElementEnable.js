@@ -1,4 +1,6 @@
 import mapElementToInputObject from '../utils/mapElementToInputObject';
+import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
+import { sendMessage } from '@/helpers.config.js'
 
 let elementoActual = null;
 let overlay = null;
@@ -35,7 +37,7 @@ export default function selectElementEnable() {
     highlight(e.target);
   };
 
-  const clickHandler = (e) => {
+  const clickHandler = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -44,12 +46,14 @@ export default function selectElementEnable() {
     if (elementoActual) {
       const data = mapElementToInputObject(elementoActual);
 
-      chrome.runtime.sendMessage({
-        action: "selectElementItem",
-        payload: {
+      const response = await sendMessage(
+        MESSAGE_TYPES.UI_EVENT,
+        ACTIONS.SELECTOR_MODE_SET_ITEM,
+        {
           data
         }
-      });
+      );
+
     }
   };
 

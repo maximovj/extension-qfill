@@ -11,8 +11,13 @@ const filtroTipo = ref("all")
 const animando = ref(null)
 
 const inputs = ref([]);
-const modoEscaneo = ref("visibles"); // valores: "visibles" | "todos" | "json"
+const modoEscaneo = ref("visibles"); // valores: "visibles" | "todos" | "json" | "selector"
 const esEscaneado = ref(false);
+
+const modoSelector = ref(false);
+const statusModoSelector = ref("error");
+const msgModoSelector = ref("Modo Selector Desactivado");
+const itemModoSelector = ref({});
 
 const fileJsonRef = ref(null);
 const nombreArchivoJson = ref(null)
@@ -61,6 +66,22 @@ const rellenarTodos = async () => {
   esEscaneado.value = true;
 };
 
+const activarModoSelector = async () => {
+  modoSelector.value = true;
+  msgModoSelector.value = 'Modo Selector Activado';
+  statusModoSelector.value = 'success';
+
+  const response = await sendMessage(
+      MESSAGE_TYPES.UI_EVENT,
+      ACTIONS.SELECTOR_MODE_ENABLE, {
+        modoEscaneo: modoEscaneo.value,
+        modoSelector: modoSelector.value,
+        msgModoSelector: msgModoSelector.value,
+        statusModoSelector: statusModoSelector.value,
+        itemModoSelector: itemModoSelector.value,
+      });
+};
+
 // Actualiza valores editables en tabla
 const actualizarValor = (input, event) => {
     if (input.type === 'checkbox') input.value = event.target.checked;
@@ -80,6 +101,9 @@ const cambiarModoEscaneo = (modo) => {
       break;
     case 'visibles': 
       modoEscaneo.value = 'visibles';
+      break;
+    case 'selector': 
+      modoEscaneo.value = 'selector';
       break;
     default:
       modoEscaneo.value = 'todos';
@@ -233,6 +257,20 @@ const rellenarInputAnimado = (input) => {
 onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
   await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
+  
+  /* storageModoSelector: {modoSelector, statusModoSelector, msgModoSelector, itemModoSelector} */
+  const storageModoSelector = await sendMessage( MESSAGE_TYPES.UI_EVENT, ACTIONS.SELECTOR_MODE_GET_ITEM);
+
+  if(storageModoSelector?.modoEscaneo === 'selector') {
+    modoEscaneo.value = 'selector';
+    modoSelector.value = storageModoSelector?.modoSelector;
+    statusModoSelector.value = storageModoSelector?.statusModoSelector;
+    msgModoSelector.value = storageModoSelector?.msgModoSelector;
+    itemModoSelector.value = storageModoSelector?.itemModoSelector;
+    inputs.value?.push(itemModoSelector.value);
+    esEscaneado.value = true;
+  }
+
 });
 </script>
 
@@ -280,6 +318,12 @@ onMounted( async () => {
           Todos
         </button>
         <button
+          @click="cambiarModoEscaneo('selector')"
+          :class="modoEscaneo === 'selector' ? activeSegment : segment"
+        >
+          Seleccion
+        </button>
+        <button
           @click="cambiarModoEscaneo('json')"
           :class="modoEscaneo === 'json' ? activeSegment : segment"
         >
@@ -293,6 +337,12 @@ onMounted( async () => {
 
       <div v-if="modoEscaneo === 'todos'">
         <p>Está opción solo buscará todos los inputs de la página actual</p>
+      </div>
+
+      <div v-if="modoEscaneo === 'selector'">
+        <p>Está opción permite seleccionar un elemento de la página actual</p>
+        <p class="my-2 text-green-400 font-medium" v-if="statusModoSelector === 'success'">{{ msgModoSelector }}</p>
+        <p class="my-2 text-red-400 font-medium" v-if="statusModoSelector === 'error'">{{ msgModoSelector }}</p>
       </div>
 
       <div v-if="modoEscaneo === 'json'">
@@ -312,6 +362,9 @@ onMounted( async () => {
       <div class="grid grid-cols-1 gap-1">
         <button @click="activarImportacion" v-if="modoEscaneo === 'json'" class="btn-primary w-full">
           Importar Json
+        </button>
+        <button @click="activarModoSelector" v-else-if="modoEscaneo === 'selector'" class="btn-primary w-full">
+          Seleccionar un input
         </button>
         <button @click="obtenerInputs" v-else class="btn-primary w-full">
           Escanear página

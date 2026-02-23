@@ -10,24 +10,45 @@ if(extConfig.isDev) {
 }
 
 // Almacenamiento 
-let selectElementItem = null;
+let selectElementItem = {};
 
 // !! Escuchar mensajes del default_popup o content_scripts
 chrome.runtime.onMessage.addListener( (msg, sender, sendResponse) => {
+    console.log("Storage [selectElementItem]:", selectElementItem);
+    console.log("Mesaje Recibido:", msg);
 
     // !! Eventos que manipula el DOM
     if(msg.type === MESSAGE_TYPES.UI_EVENT) {
         switch(msg.action) {
             case ACTIONS.SCAN_INPUTS:
             case ACTIONS.FILL_INPUT_BY_ID: 
-            case ACTIONS.FILL_ALL_INPUTS: 
-            case ACTIONS.SELECTOR_MODE_ENABLE: 
-            case ACTIONS.SELECTOR_MODE_SET_ITEM: 
-            case ACTIONS.SELECTOR_MODE_GET_ITEM: 
+            case ACTIONS.FILL_ALL_INPUTS:
             {
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     chrome.tabs.sendMessage(tabs[0].id, msg, sendResponse);
                 });
+                break;
+            }
+            case ACTIONS.SELECTOR_MODE_ENABLE: {
+                selectElementItem = msg?.payload;
+                dispatchToActiveTab(
+                    MESSAGE_TYPES.UI_EVENT,
+                    ACTIONS.SELECTOR_MODE_ENABLE
+                )
+                .then(response => sendResponse(response))
+                .catch(error => sendResponse({ error: error?.message || 'error' }));
+                break;
+            }
+            case ACTIONS.SELECTOR_MODE_SET_ITEM:{
+                const itemModoSelector = msg?.payload?.data;
+                selectElementItem = {
+                    ...selectElementItem,
+                    itemModoSelector
+                }
+                break;
+            }
+            case ACTIONS.SELECTOR_MODE_GET_ITEM: {
+                sendResponse(selectElementItem);
                 break;
             }
         }

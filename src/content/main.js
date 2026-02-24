@@ -15,7 +15,7 @@ console.log('Timestamps: ' + timestamps);
 console.log('[CRXJS] Hello world from content script!');
 
 (async() => {
-    await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+    //await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
 })();
 
 document.qFill = {

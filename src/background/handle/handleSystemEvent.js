@@ -1,9 +1,11 @@
 import { ACTIONS } from '../../constants.config';
+import extensionStateConfig from '../../extensionState.config';
 
 export default async function handleSystemEvent(msg) {
     switch(msg.action) {
         case ACTIONS.CONNECT: {
-            return { status: 'ok', msg: 'Conexión establecida correctamente.' };
+            const state = extensionStateConfig.get();
+            return { status: 'ok', msg: state };
         }
     }
 }

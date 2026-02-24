@@ -266,19 +266,9 @@ const rellenarInputAnimado = (input) => {
 }
 
 const inicializarStateConfig = async () => {
-  await new Promise((resolve, reject) => {
-    esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
-    inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
-    modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
-
-    /*
-    modoSelector.value = extensionState.get('modoSelector.activo');
-    statusModoSelector.value = extensionState.get('modoSelector.status');
-    msgModoSelector.value = extensionState.get('modoSelector.mensaje');
-    itemModoSelector.value = extensionState.get('modoSelector.itemSeleccionado');
-    */
-    resolve({ status: 'ok' });
-  }).then(() => {});
+  esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
+  inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
+  modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
 }
 
 /* Cargar popup */

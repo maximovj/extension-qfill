@@ -6,6 +6,7 @@ import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.co
 import extensionState from "../extensionState.config";
 import generarFakeValue from './utils/generarFakeValue';
 import generarPerfilFake from './utils/generarPerfilFake';
+import indexedDBManager from "../indexedDBManager";
 
 const search = ref("")
 const filtroTipo = ref("all")
@@ -196,12 +197,26 @@ const aplicarFakerFiller = async () => {
   }));
   // TODO : Enviarlo a Background utiliza chrome.storage.set
   const set = {key: 'ultimoEscaneo.inputs', value: inputs.value };
-  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET, { set });
+  //await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET, { set });
+  await indexedDBManager.put(indexedDBManager.STORES.ELEMENTOS,{
+    id: indexedDBManager.ID.ELEMENTOS_ID,
+    modo: modoEscaneo.value,
+    elementos: inputs.value,
+    actualizado: Date.now(),
+  });
 }
 
 const eliminarTodoEscaneado = async () => {
-  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-  await inicializarStateConfig();
+  const sendMsg = await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+
+  if(sendMsg?.status === 'ok') {
+    const msg = sendMsg?.msg;
+    const storeElementos = msg?.elementos?.at(0);
+    esEscaneado.value = storeElementos?.elementos?.length > 0 ? true: false;
+    inputs.value = storeElementos?.elementos || [];
+    modoEscaneo.value =  storeElementos?.modo || "visibles";
+  }
+
 }
 
 // Inputs seleccionados
@@ -266,19 +281,9 @@ const rellenarInputAnimado = (input) => {
 }
 
 const inicializarStateConfig = async () => {
-  await new Promise((resolve, reject) => {
-    esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
-    inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
-    modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
-
-    /*
-    modoSelector.value = extensionState.get('modoSelector.activo');
-    statusModoSelector.value = extensionState.get('modoSelector.status');
-    msgModoSelector.value = extensionState.get('modoSelector.mensaje');
-    itemModoSelector.value = extensionState.get('modoSelector.itemSeleccionado');
-    */
-    resolve({ status: 'ok' });
-  }).then(() => {});
+  //esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
+  //inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
+  //modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
 }
 
 /* Cargar popup */
@@ -287,7 +292,11 @@ onMounted( async () => {
   
   const connect = await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
   if(connect?.status === 'ok') {
-    await inicializarStateConfig();
+    const msg = connect?.msg;
+    const storeElementos = msg?.elementos?.at(0);
+    esEscaneado.value = storeElementos?.elementos?.length > 0 ? true: false;
+    inputs.value = storeElementos?.elementos || [];
+    modoEscaneo.value =  storeElementos?.modo || "visibles";
   }
 
 });

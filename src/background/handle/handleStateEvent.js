@@ -1,12 +1,15 @@
 import { ACTIONS } from '../../constants.config';
 import { sendToActiveTab } from '../../helpers.config';
 import extensionState from '../../extensionState.config';
+import IndexedDBManager from '../../indexedDBManager';
 
 function esObjetoLiteral(valor) {
     return Object.prototype.toString.call(valor) === "[object Object]";
 }
 
 export default async function handleStateEvent(msg) {
+    const db = IndexedDBManager;
+    
     switch(msg.action) {
         case ACTIONS.STATE_SET: {
             try {
@@ -36,8 +39,9 @@ export default async function handleStateEvent(msg) {
         case ACTIONS.STATE_RESET: {
             try {
                 await extensionState.reset();
-
-                return { status: 'ok', msg: extensionState.get()};
+                await db.reset();
+                const datos = await db.getAllData();
+                return { status: 'ok', msg: datos };
             } catch (err) {
                 console.log("Hubo un error:", {err, msg});
                 return err;

@@ -1,10 +1,11 @@
 import { ACTIONS, MESSAGE_TYPES } from '../../constants.config';
 import { sendToActiveTab, dispatchToActiveTab } from '../../helpers.config';
 import extensionState from '../../extensionState.config';
-import IndexedDBManager from '../../IndexedDBManager';
+import IndexedDBManager from '../../indexedDBManager';
 
 export default async function handleUIEvent(msg) {
     const db = IndexedDBManager;
+    
     switch(msg.action) {
         case ACTIONS.FILL_INPUT_BY_ID: 
         case ACTIONS.FILL_ALL_INPUTS:

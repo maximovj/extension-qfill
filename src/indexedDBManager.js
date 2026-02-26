@@ -243,6 +243,36 @@ class IndexedDBManager {
         });
     }
 
+    async reset() {
+        await this.initDatabase();
+        
+        await this.put(this.STORES.CONFIGURACION, {
+            id: this.ID.CONFIGURACION_ID,
+            modo: "visibles",
+            elementos: [],
+            selectorAnidado: true,
+            selectorActivado: false,
+            elementoSeleccionado: {},
+            creadoEn: Date.now(),
+            actualizadoEn: Date.now(),
+        });
+        await this.put(this.STORES.ELEMENTOS, {
+            id: this.ID.ELEMENTOS_ID,
+            modo: "visibles",
+            elementos: [],
+            creadoEn: Date.now(),
+            actualizadoEn: Date.now(),
+        });
+        await this.put(this.STORES.ELEMENTO_SELECCIONADO, {
+            id: this.ID.ELEMENTO_SELECCIONADO_ID,
+            selectorAnidado: false,
+            selectorActivado: false,
+            elementoSeleccionado: {},
+            creadoEn: Date.now(),
+            actualizadoEn: Date.now(),
+        });
+    }
+
     async queryByIndex(storeName, indexName, operator, value) {
         const store = await this._transaction(storeName);
         const index = store.index(indexName);

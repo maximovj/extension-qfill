@@ -15,6 +15,7 @@ const extension = {
     default_title: `${name} : ${header_description}`,
     host_permissions:  ['http://*/*', 'https://*/*'],
     permissions: [
+        'unlimitedStorage',
         'storage',
         'tabs',
         'activeTab',

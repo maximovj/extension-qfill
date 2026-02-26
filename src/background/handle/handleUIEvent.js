@@ -1,8 +1,10 @@
 import { ACTIONS, MESSAGE_TYPES } from '../../constants.config';
 import { sendToActiveTab, dispatchToActiveTab } from '../../helpers.config';
 import extensionState from '../../extensionState.config';
+import IndexedDBManager from '../../IndexedDBManager';
 
 export default async function handleUIEvent(msg) {
+    const db = IndexedDBManager;
     switch(msg.action) {
         case ACTIONS.FILL_INPUT_BY_ID: 
         case ACTIONS.FILL_ALL_INPUTS:
@@ -14,17 +16,11 @@ export default async function handleUIEvent(msg) {
             try {
                 const { modoEscaneo } = msg?.payload;
                 const inputs = await sendToActiveTab(msg);
-                await extensionState.setMany({
-                    // Desactivar
-                    'modoSelector.activo':  false,
-                    'modoSelector.status':  'error',
-                    'modoSelector.mensaje': 'Modo Selector Desactivado',
-
-                    
-                    'ultimoEscaneo.modo':  modoEscaneo || 'visibles',
-                    'ultimoEscaneo.escaneado':  true,
-                    'ultimoEscaneo.timestamp':  Date.now(),
-                    'ultimoEscaneo.inputs': inputs,
+                await db.put(db.STORES.ELEMENTOS, {
+                    id: db.ID.ELEMENTOS_ID,
+                    modo: modoEscaneo || 'visibles',
+                    elementos: inputs,
+                    actualizado: Date.now(),
                 });
                 return inputs;
             } catch (err) {
@@ -36,15 +32,11 @@ export default async function handleUIEvent(msg) {
         
         case ACTIONS.SELECTOR_MODE_ENABLE: {
             try {
-                await extensionState.setMany({
-                    // Desactivar
-                    'ultimoEscaneo.escaneado':  false,
-                    'ultimoEscaneo.timestamp':  null,
-
-                    'ultimoEscaneo.modo': 'selector',
-                    'modoSelector.activo':  true,
-                    'modoSelector.status':  'success',
-                    'modoSelector.mensaje': 'Modo Selector Activado',
+                await db.put(db.STORES.CONFIGURACION, {
+                    id: db.ID.CONFIGURACION_ID,
+                    modo: "selector",
+                    selectorActivado: true,
+                    selectorAnidado: true,
                 });
                 return await dispatchToActiveTab(
                     MESSAGE_TYPES.UI_EVENT,
@@ -59,11 +51,30 @@ export default async function handleUIEvent(msg) {
 
         case ACTIONS.SELECTOR_MODE_SET_ITEM:{
             try {
+                const config = await db.get(db.STORES.CONFIGURACION, db.ID.CONFIGURACION_ID);
                 const itemModoSelector = msg?.payload?.data;
                 const inputs = extensionState.get('ultimoEscaneo.inputs') || [];
-                if(Array.isArray(inputs)) {
-                    inputs.push(itemModoSelector);
-                    await extensionState.set('ultimoEscaneo.inputs', inputs);
+
+                if(Array.isArray(inputs) && config) {
+                    await db.put(db.STORES.ELEMENTO_SELECCIONADO, {
+                        id: db.ID.ELEMENTO_SELECCIONADO_ID,
+                        elementoSeleccionado: itemModoSelector,
+                        actualizado: Date.now(),
+                        selectorActivado: config?.selectorActivado || true,
+                        selectorAnidado: config?.selectorAnidado || true,
+                    });
+
+                    if(config?.selectorActivado && config?.selectorAnidado) {
+                        inputs.push(itemModoSelector);
+                        await db.put(db.STORES.ELEMENTOS, {
+                            id: db.ID.ELEMENTOS_ID,
+                            modo: "selector",
+                            elementos: inputs,
+                            actualizado: Date.now(),
+                        });
+                        await extensionState.set('ultimoEscaneo.inputs', inputs);
+                    }
+
                 }
                 return itemModoSelector;
             } catch (err) {

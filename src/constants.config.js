@@ -16,6 +16,7 @@ export const ACTIONS = {
     STATE_RESET: "state.reset",
 
     // Eventos que manipula el DOM
+    CLOSE_POPUP: "ui.closePopup",
     SCAN_INPUTS: "ui.scanInputs",
     FILL_INPUT_BY_ID: "ui.fillInputById",
     FILL_ALL_INPUTS: "ui.fillAllInputs",

@@ -5,6 +5,9 @@ import db from '../indexedDBManager.js';
 
 // Se ejecuta cuando la extensión se instala o actualiza
 chrome.runtime.onInstalled.addListener(() => {
+    chrome.sidePanel.setPanelBehavior({
+        openPanelOnActionClick: true
+    });
     (async () => {
         try {
             await db.initDatabase(); // asegura defaults
@@ -23,6 +26,11 @@ chrome.runtime.onStartup.addListener(() => {
             console.error("Error inicializando IndexedDB:", err);
         }
     })();
+});
+
+// Abrir el sidepanel
+chrome.action.onClicked.addListener((tab) => {
+    chrome.sidePanel.open({ tabId: tab.id });
 });
 
 //  Escucha y recibe las comunicaciones que le envían otras partes

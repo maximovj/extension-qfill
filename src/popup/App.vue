@@ -157,12 +157,12 @@ const importarJSON = (event) => {
       modoEscaneo.value = 'json'
       successJson.value = "✔️ JSON importado correctamente";
 
-      // TODO : Enviarlo a Background utiliza chrome.storage.set
       const setMany = {
-        'ultimoEscaneo.escaneado': true,
-        'ultimoEscaneo.inputs': inputs.value,
-        'ultimoEscaneo.modo': 'json',
+        'configuracion.modo': modoEscaneo.value,
+        'configuracion.actualizado': Date.now(),
+        'configuracion.elementos': inputs.value,
       };
+  
       await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
 
     } catch (err) {
@@ -195,15 +195,14 @@ const aplicarFakerFiller = async () => {
     ...i,
     value: generarFakeValue(i, perfil)
   }));
-  // TODO : Enviarlo a Background utiliza chrome.storage.set
-  const set = {key: 'ultimoEscaneo.inputs', value: inputs.value };
-  //await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET, { set });
-  await indexedDBManager.put(indexedDBManager.STORES.ELEMENTOS,{
-    id: indexedDBManager.ID.ELEMENTOS_ID,
-    modo: modoEscaneo.value,
-    elementos: inputs.value,
-    actualizado: Date.now(),
-  });
+
+  const setMany = {
+    'configuracion.modo': modoEscaneo.value,
+    'configuracion.actualizado': Date.now(),
+    'configuracion.elementos': inputs.value,
+  };
+  
+  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
 }
 
 const eliminarTodoEscaneado = async () => {
@@ -291,12 +290,13 @@ onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
   
   const connect = await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
+  // Cargar la configuración
   if(connect?.status === 'ok') {
     const msg = connect?.msg;
-    const storeElementos = msg?.elementos?.at(0);
-    esEscaneado.value = storeElementos?.elementos?.length > 0 ? true: false;
-    inputs.value = storeElementos?.elementos || [];
-    modoEscaneo.value =  storeElementos?.modo || "visibles";
+    const storeConfiguracion = msg?.configuracion;
+    esEscaneado.value = storeConfiguracion?.elementos?.length > 0;
+    inputs.value = storeConfiguracion?.elementos || [];
+    modoEscaneo.value =  storeConfiguracion?.modo || "visibles";
   }
 
 });

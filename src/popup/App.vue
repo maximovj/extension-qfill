@@ -17,6 +17,7 @@ const modoEscaneo = ref("visibles"); // valores: "visibles" | "todos" | "json" |
 const esEscaneado = ref(false);
 
 const modoSelector = ref(false);
+const modoSelectorAccion = ref('agregar'); // valores: "agregar" | "nuevo" | "escanear"
 const statusModoSelector = ref("error");
 const msgModoSelector = ref("Modo Selector Desactivado");
 const itemModoSelector = ref({});
@@ -105,6 +106,22 @@ const cambiarModoEscaneo = (modo) => {
       break;
     default:
       modoEscaneo.value = 'todos';
+  }
+}
+
+const cambiarModoSelectorAccion = (modo) => {
+  switch(modo) {
+    case 'agregar': 
+      modoSelectorAccion.value = 'agregar';
+      break;
+    case 'nuevo': 
+      modoSelectorAccion.value = 'nuevo';
+      break;
+    case 'escanear': 
+      modoSelectorAccion.value = 'escanear';
+      break;
+    default:
+      modoSelectorAccion.value = 'todos';
   }
 }
 
@@ -349,7 +366,7 @@ onMounted( async () => {
           @click="cambiarModoEscaneo('selector')"
           :class="modoEscaneo === 'selector' ? activeSegment : segment"
         >
-          Seleccion
+          Modo Selector
         </button>
         <button
           @click="cambiarModoEscaneo('json')"
@@ -369,6 +386,28 @@ onMounted( async () => {
 
       <div v-if="modoEscaneo === 'selector'">
         <p>Está opción permite seleccionar un elemento de la página actual</p>
+
+        <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-fit my-2">
+          <button
+            @click="cambiarModoSelectorAccion('agregar')"
+            :class="modoSelectorAccion === 'agregar' ? activeSegment : segment"
+          >
+            Agregar
+          </button>
+          <button
+            @click="cambiarModoSelectorAccion('nuevo')"
+            :class="modoSelectorAccion === 'nuevo' ? activeSegment : segment"
+          >
+            Nuevo
+          </button>
+          <button
+            @click="cambiarModoSelectorAccion('escanear')"
+            :class="modoSelectorAccion === 'escanear' ? activeSegment : segment"
+          >
+            Escanear
+          </button>
+        </div>
+
         <p class="my-2 text-green-400 font-medium" v-if="statusModoSelector === 'success'">{{ msgModoSelector }}</p>
         <p class="my-2 text-red-400 font-medium" v-if="statusModoSelector === 'error'">{{ msgModoSelector }}</p>
       </div>
@@ -392,7 +431,7 @@ onMounted( async () => {
           Importar Json
         </button>
         <button @click="activarModoSelector" v-else-if="modoEscaneo === 'selector'" class="btn-primary w-full">
-          Seleccionar un input
+          Activar modo selector
         </button>
         <button @click="obtenerInputs" v-else class="btn-primary w-full">
           Escanear página
@@ -405,7 +444,9 @@ onMounted( async () => {
     <!-- ===================== -->
     <!-- 🟦 MÓDULO 2: FILTROS -->
     <!-- ===================== -->
-    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+    <section 
+      v-if="Object.keys(inputsAgrupados)?.length"
+      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
       
       <h2 class="text-sm font-semibold">Filtros</h2>
 

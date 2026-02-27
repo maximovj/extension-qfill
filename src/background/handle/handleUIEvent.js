@@ -1,10 +1,10 @@
 import { ACTIONS, MESSAGE_TYPES } from '../../constants.config';
-import { sendToActiveTab, dispatchToActiveTab } from '../../helpers.config';
+import { sendToActiveTab, dispatchToActiveTab, sendMessage } from '../../helpers.config';
 import extensionState from '../../extensionState.config';
-import IndexedDBManager from '../../indexedDBManager';
+import db from '../../indexedDBManager';
 
 export default async function handleUIEvent(msg) {
-    const db = IndexedDBManager;
+    const storeConfig = await db.get(db.STORES.CONFIGURACION);
     
     switch(msg.action) {
         case ACTIONS.FILL_INPUT_BY_ID: 
@@ -17,15 +17,17 @@ export default async function handleUIEvent(msg) {
             try {
                 const { modoEscaneo } = msg?.payload;
                 const inputs = await sendToActiveTab(msg);
-                await db.put(db.STORES.ELEMENTOS, {
-                    id: db.ID.ELEMENTOS_ID,
-                    modo: modoEscaneo || 'visibles',
-                    elementos: inputs,
+                await db.set(db.STORES.CONFIGURACION, {
+                    ...storeConfig,
                     actualizado: Date.now(),
+                    elementoSeleccionado: {},
+                    elementos: inputs,
+                    modo: modoEscaneo || "visibles",
+                    selectorActivado: false
                 });
                 return inputs;
             } catch (err) {
-                await extensionState.reset();
+                await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});
                 return err;
             }
@@ -33,18 +35,20 @@ export default async function handleUIEvent(msg) {
         
         case ACTIONS.SELECTOR_MODE_ENABLE: {
             try {
-                await db.put(db.STORES.CONFIGURACION, {
-                    id: db.ID.CONFIGURACION_ID,
+                console.log("ACTIONS.SELECTOR_MODE_ENABLE", { msg });
+                await db.set(db.STORES.CONFIGURACION, {
+                    ...storeConfig,
+                    actualizado: Date.now(),
+                    elementoSeleccionado: {},
                     modo: "selector",
-                    selectorActivado: true,
-                    selectorAnidado: true,
+                    selectorActivado: true
                 });
                 return await dispatchToActiveTab(
                     MESSAGE_TYPES.UI_EVENT,
                     ACTIONS.SELECTOR_MODE_ENABLE
                 );
             } catch (err) {
-                await extensionState.reset();
+                await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});
                 return err;
             }
@@ -52,35 +56,36 @@ export default async function handleUIEvent(msg) {
 
         case ACTIONS.SELECTOR_MODE_SET_ITEM:{
             try {
-                const config = await db.get(db.STORES.CONFIGURACION, db.ID.CONFIGURACION_ID);
+                console.log("ACTIONS.SELECTOR_MODE_SET_ITEM", { msg });
                 const itemModoSelector = msg?.payload?.data;
-                const inputs = extensionState.get('ultimoEscaneo.inputs') || [];
+                const elementosActual = storeConfig?.elementos || [];
 
-                if(Array.isArray(inputs) && config) {
-                    await db.put(db.STORES.ELEMENTO_SELECCIONADO, {
-                        id: db.ID.ELEMENTO_SELECCIONADO_ID,
-                        elementoSeleccionado: itemModoSelector,
+                if(Array.isArray(elementosActual) && storeConfig) {
+                    await db.set(db.STORES.CONFIGURACION, {
+                        ...storeConfig,
                         actualizado: Date.now(),
-                        selectorActivado: config?.selectorActivado || true,
-                        selectorAnidado: config?.selectorAnidado || true,
+                        elementoSeleccionado: itemModoSelector,
+                        modo: "selector",
                     });
-
-                    if(config?.selectorActivado && config?.selectorAnidado) {
-                        inputs.push(itemModoSelector);
-                        await db.put(db.STORES.ELEMENTOS, {
-                            id: db.ID.ELEMENTOS_ID,
-                            modo: "selector",
-                            elementos: inputs,
+                    
+                    if(storeConfig?.selectorActivado && storeConfig?.selectorAnidado) {
+                        elementosActual.push(itemModoSelector);
+                        await db.set(db.STORES.CONFIGURACION, {
+                            ...storeConfig,
                             actualizado: Date.now(),
+                            elementoSeleccionado: itemModoSelector,
+                            elementos: elementosActual,
+                            modo: "selector",
+                            selectorActivado: storeConfig?.selectorActivado || true,
+                            selectorAnidado: storeConfig?.selectorAnidado || true,
                         });
-                        await extensionState.set('ultimoEscaneo.inputs', inputs);
                     }
 
                 }
                 return itemModoSelector;
             } catch (err) {
-                await extensionState.reset();
-                console.log("Hubo un error:", err);
+                await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+                console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }

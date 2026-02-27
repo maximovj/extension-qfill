@@ -15,7 +15,7 @@ export default defineManifest({
     default_icon: {
       48: 'public/logo.png',
     },
-    default_popup: 'src/popup/index.html',
+    //default_popup: 'src/popup/index.html',
     default_title: extension.default_title,
   },
   content_scripts: [{

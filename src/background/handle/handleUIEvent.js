@@ -89,5 +89,15 @@ export default async function handleUIEvent(msg) {
                 return err;
             }
         }
+
+        case ACTIONS.CLOSE_POPUP: {
+            try {
+                window.close();
+            } catch (err) {
+                await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+                console.log("Hubo un error:", {err, msg});
+                return err;
+            }
+        }
     }
 }

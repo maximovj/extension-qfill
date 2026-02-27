@@ -1,18 +1,31 @@
 import extConfig from '../extension.config.js'
 import handleMessages from './handleMessages.js'
 import extensionState from '../extensionState.config.js'
-import IndexedDBManager from '../IndexedDBManager.js';
+import db from '../indexedDBManager.js';
 
 // Se ejecuta cuando la extensión se instala o actualiza
-chrome.runtime.onInstalled.addListener(async () => {
-    try {
-        await IndexedDBManager.init();       // crea DB y stores si no existen
-        await IndexedDBManager.initDatabase(); // asegura defaults
-    } catch (err) {
-        console.error("Error inicializando IndexedDB:", err);
-    }
+chrome.runtime.onInstalled.addListener(() => {
+    (async () => {
+        try {
+            await db.initDatabase(); // asegura defaults
+        } catch (err) {
+            console.error("Error inicializando IndexedDB:", err);
+        }
+    })();
 });
 
+//  Se ejecute justo en el momento en que se inicia el navegador 
+chrome.runtime.onStartup.addListener(() => {
+    (async () => {
+        try {
+            await db.initDatabase(); // asegura defaults
+        } catch (err) {
+            console.error("Error inicializando IndexedDB:", err);
+        }
+    })();
+});
+
+//  Escucha y recibe las comunicaciones que le envían otras partes
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
         try {
@@ -35,10 +48,9 @@ if(extConfig.isDev) {
     console.log('Inicializando [SERVICE WORKER] extensión QFill (DEV)... ');
     console.log('Timestamps: ' + timestamps);
     (async () => {
-        //await extensionState.reset();
         await extensionState.debugEstado();
-        const datos = await IndexedDBManager.getAllData();
-        console.log(IndexedDBManager.DB_NAME,  datos);
-        chrome.qfilldb = IndexedDBManager;
+        const stateDB = await db.get();
+        console.log(db.DB_NAME,  stateDB);
+        chrome.qfilldb = db;
     })();
 }

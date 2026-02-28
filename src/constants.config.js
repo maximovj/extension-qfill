@@ -7,6 +7,7 @@ export const MESSAGE_TYPES = {
 
 export const ACTIONS = {
     CONNECT: "system.connect",
+    ASYNC_CONFIG: "system.async.config",
     STORAGE_GET: "storage.get",
     STORAGE_SET: "storage.set",
 

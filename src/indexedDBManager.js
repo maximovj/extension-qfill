@@ -108,7 +108,7 @@ class IndexedDBManager {
             id: this.IDS.configuracion,
             modo: "visibles",
             elementos: [],
-            selectorAnidado: true,
+            selectorAccion: "agregar",
             selectorActivado: false,
             elementoSeleccionado: {},
             creado: Date.now(),

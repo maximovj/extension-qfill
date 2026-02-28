@@ -42,8 +42,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse(resultado);
         } catch (error) {
             await extensionState.reset();
-            console.log("Hubo un error en background:", error);
-            sendResponse({ error: error.message });
+            await db.set("configuracion", db.defaultConfiguracion());
+            console.log("Hubo un error en background:", { message, error});
+            sendResponse({ status: "error", msg: { message, error} });
         }
     })();
     

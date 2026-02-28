@@ -37,32 +37,30 @@ const obtenerInputs = async () => {
   nombreArchivoJson.value = null; 
   filtroTipo.value = 'all';
 
-  const response = await sendMessage(
+  await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
     ACTIONS.SCAN_INPUTS, 
     { soloVisibles: modoEscaneo.value === "visibles", modoEscaneo: modoEscaneo.value });
 
-  if(response?.length) {
-    inputs.value = response;
-    esEscaneado.value = true;
-  } else {
-    inputs.value = [];
-    esEscaneado.value = false;
-  }
+  await actualizarEstadosRef();
 };
 
 const rellenarInput = async (input) => {
-  const response = await sendMessage(
+  await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.FILL_INPUT_BY_ID, 
       { data: input });
+
+  await actualizarEstadosRef();
 };
 
 const rellenarTodos = async () => {
-  const response = await sendMessage(
+  await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.FILL_ALL_INPUTS, 
       { data: inputsSeleccionados.value });
+
+  await actualizarEstadosRef();
 };
 
 const activarModoSelector = async () => {
@@ -70,7 +68,7 @@ const activarModoSelector = async () => {
   msgModoSelector.value = 'Modo Selector Activado';
   statusModoSelector.value = 'success';
 
-  const response = await sendMessage(
+  await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.SELECTOR_MODE_ENABLE, {
         modoEscaneo: modoEscaneo.value,
@@ -79,6 +77,8 @@ const activarModoSelector = async () => {
         statusModoSelector: statusModoSelector.value,
         itemModoSelector: itemModoSelector.value,
       });
+
+  await actualizarEstadosRef();
 };
 
 // Actualiza valores editables en tabla
@@ -181,6 +181,7 @@ const importarJSON = (event) => {
       };
   
       await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
+      await actualizarEstadosRef();
 
     } catch (err) {
       errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
@@ -220,19 +221,12 @@ const aplicarFakerFiller = async () => {
   };
   
   await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
+  await actualizarEstadosRef();
 }
 
 const eliminarTodoEscaneado = async () => {
-  const sendMsg = await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-
-  if(sendMsg?.status === 'ok') {
-    const msg = sendMsg?.msg;
-    const storeElementos = msg?.elementos?.at(0);
-    esEscaneado.value = storeElementos?.elementos?.length > 0 ? true: false;
-    inputs.value = storeElementos?.elementos || [];
-    modoEscaneo.value =  storeElementos?.modo || "visibles";
-  }
-
+  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+  await actualizarEstadosRef();
 }
 
 // Inputs seleccionados
@@ -296,26 +290,30 @@ const rellenarInputAnimado = (input) => {
   }, 600);
 }
 
-const inicializarStateConfig = async () => {
-  //esEscaneado.value = extensionState.get('ultimoEscaneo.escaneado');
-  //inputs.value = extensionState.get('ultimoEscaneo.inputs') || [];    
-  //modoEscaneo.value = extensionState.get('ultimoEscaneo.modo');
+const actualizarEstadosRef = async () => {
+  // Cargar la configuración
+  const configDB = await sendMessage(MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.ASYNC_CONFIG);
+
+  if(configDB?.status === "ok") {
+    const msg = configDB?.msg;
+    const storeConfiguracion = msg?.configuracion;
+    
+    esEscaneado.value = storeConfiguracion?.elementos?.length > 0;
+    inputs.value = storeConfiguracion?.elementos || [];
+    modoEscaneo.value =  storeConfiguracion?.modo || "visibles";
+    modoSelector.value = storeConfiguracion?.selectorActivado || false;
+    modoSelectorAccion.value = storeConfiguracion?.selectorAccion || "agregar";
+  }
+  
 }
 
 /* Cargar popup */
 onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
-  
-  const connect = await sendMessage( MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
-  // Cargar la configuración
-  if(connect?.status === 'ok') {
-    const msg = connect?.msg;
-    const storeConfiguracion = msg?.configuracion;
-    esEscaneado.value = storeConfiguracion?.elementos?.length > 0;
-    inputs.value = storeConfiguracion?.elementos || [];
-    modoEscaneo.value =  storeConfiguracion?.modo || "visibles";
+  const sendResponse = await sendMessage(MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
+  if(sendResponse?.status === "ok") {
+    await actualizarEstadosRef();
   }
-
 });
 </script>
 

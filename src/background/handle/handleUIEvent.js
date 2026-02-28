@@ -5,6 +5,7 @@ import db from '../../indexedDBManager';
 
 export default async function handleUIEvent(msg) {
     const storeConfig = await db.get(db.STORES.CONFIGURACION);
+    let configDB = {};
     
     switch(msg.action) {
         case ACTIONS.FILL_INPUT_BY_ID: 
@@ -25,7 +26,9 @@ export default async function handleUIEvent(msg) {
                     modo: modoEscaneo || "visibles",
                     selectorActivado: false
                 });
-                return inputs;
+
+                return { status: 'ok', msg: "Elementos escaneados" };
+                //return { status: 'ok', msg: { configDB: {...configDB }, respuesta} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});
@@ -43,10 +46,13 @@ export default async function handleUIEvent(msg) {
                     modo: "selector",
                     selectorActivado: true
                 });
-                return await dispatchToActiveTab(
+                await dispatchToActiveTab(
                     MESSAGE_TYPES.UI_EVENT,
                     ACTIONS.SELECTOR_MODE_ENABLE
                 );
+                
+                return { status: 'ok', msg: "Modo selector activado" };
+                //return { status: 'ok', msg: { configDB: {...configDB }, respuesta} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});
@@ -65,10 +71,11 @@ export default async function handleUIEvent(msg) {
                         ...storeConfig,
                         actualizado: Date.now(),
                         elementoSeleccionado: itemModoSelector,
+                        elementos: [itemModoSelector],
                         modo: "selector",
                     });
                     
-                    if(storeConfig?.selectorActivado && storeConfig?.selectorAnidado) {
+                    if(storeConfig?.selectorActivado && storeConfig?.selectorAccion === "agregar") {
                         elementosActual.push(itemModoSelector);
                         await db.set(db.STORES.CONFIGURACION, {
                             ...storeConfig,
@@ -77,12 +84,13 @@ export default async function handleUIEvent(msg) {
                             elementos: elementosActual,
                             modo: "selector",
                             selectorActivado: storeConfig?.selectorActivado || true,
-                            selectorAnidado: storeConfig?.selectorAnidado || true,
+                            selectorAccion: storeConfig?.selectorAccion || "agregar",
                         });
                     }
 
                 }
-                return itemModoSelector;
+                return { status: 'ok', msg: "Elemento seleccionado en Modo Selector" };
+                //return { status: 'ok', msg: {configDB: {...configDB }, itemModoSelector, elementosActual} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});
@@ -93,6 +101,9 @@ export default async function handleUIEvent(msg) {
         case ACTIONS.CLOSE_POPUP: {
             try {
                 window.close();
+                
+                return { status: 'ok', msg: "Popup cerrado correctamente" };
+                //return { status: 'ok', msg: {configDB: {...configDB }} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});

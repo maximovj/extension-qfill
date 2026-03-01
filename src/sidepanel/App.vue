@@ -67,12 +67,14 @@ const activarModoSelector = async () => {
   modoSelector.value = true;
   msgModoSelector.value = 'Modo Selector Activado';
   statusModoSelector.value = 'success';
+  
 
   await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.SELECTOR_MODE_ENABLE, {
         modoEscaneo: modoEscaneo.value,
         modoSelector: modoSelector.value,
+        modoAccion: modoSelectorAccion.value,
         msgModoSelector: msgModoSelector.value,
         statusModoSelector: statusModoSelector.value,
         itemModoSelector: itemModoSelector.value,

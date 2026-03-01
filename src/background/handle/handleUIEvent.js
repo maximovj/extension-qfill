@@ -39,12 +39,14 @@ export default async function handleUIEvent(msg) {
         case ACTIONS.SELECTOR_MODE_ENABLE: {
             try {
                 console.log("ACTIONS.SELECTOR_MODE_ENABLE", { msg });
+                const { modoAccion } = msg?.payload;
                 await db.set(db.STORES.CONFIGURACION, {
                     ...storeConfig,
                     actualizado: Date.now(),
                     elementoSeleccionado: {},
                     modo: "selector",
-                    selectorActivado: true
+                    selectorActivado: true,
+                    selectorAccion: modoAccion || "agregar",
                 });
                 await dispatchToActiveTab(
                     MESSAGE_TYPES.UI_EVENT,

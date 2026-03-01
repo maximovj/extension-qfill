@@ -76,13 +76,6 @@ export default {
         mostrarPanelHistorial(){ 
             this.panel = 'historial';
         },
-        togglePanel() {
-            if(this.panel === 'perfiles') {
-                this.panel = 'configuracion';
-            } else if (this.panel === 'configuracion') {
-                this.panel = 'perfiles';
-            }
-        }
     }
 }
 </script>

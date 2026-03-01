@@ -503,7 +503,8 @@ onMounted( async () => {
             Resultados ({{ inputsFiltrados?.length }})
           </h2>
         </div>
-        
+
+        <!-- MÓDULO 3: RESULTADOS | Acciones -->
         <div class="grid grid-cols-2">
           <div>
             <button
@@ -513,6 +514,7 @@ onMounted( async () => {
               Eliminar todos los elementos
             </button>
           </div>
+          <div></div>
           <div>
             <button
               @click="cambiarSelectedATodos(true)"
@@ -531,6 +533,14 @@ onMounted( async () => {
           </div>
           <div>
             <button
+              @click="aplicarFakerFiller()"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Aplicar Faker Filler ({{ totalSelecionados }})
+            </button>
+          </div>
+          <div>
+            <button
               @click="rellenarTodos()"
               class="text-[10px] text-green-600 hover:underline"
             >
@@ -543,14 +553,6 @@ onMounted( async () => {
               class="text-[10px] text-green-600 hover:underline"
             >
               Exportar a JSON ({{ totalSelecionados }})
-            </button>
-          </div>
-          <div>
-            <button
-              @click="aplicarFakerFiller()"
-              class="text-[10px] text-green-600 hover:underline"
-            >
-              Aplicar Faker Filler ({{ totalSelecionados }})
             </button>
           </div>
         </div>

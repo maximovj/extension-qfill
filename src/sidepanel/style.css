@@ -66,6 +66,42 @@
   }
 }
 
+
+/* ===============================
+   🧩 ANIMACIONES
+================================= */
+
+@theme {
+  --text-primary: var(--text-primary);
+  --animate-pizarra-perfiles: pizarra-perfiles 0.5s ease-out forwards;
+  --animate-slide-in: slide-in 0.5s ease-out forwards;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pizarra-perfiles {
+  from {
+    transform: translateX(100%);
+    overflow: hidden;
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+
 /* ===============================
    🧩 COMPONENTS
 ================================= */
@@ -76,6 +112,19 @@
     border-radius: var(--radius);
     padding: 16px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .text-menu-item {
+    color: var(--primary);
+    font-weight: 700;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .text-menu-item-active, .text-menu-item:hover {
+    font-weight: 700;
+    text-decoration: underline var(--text-secondary);
+    text-underline-offset: 3px;
+    color: var(--primary-hover);
   }
 
   .btn-primary {

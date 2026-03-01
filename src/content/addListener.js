@@ -2,12 +2,23 @@ import scanInputs from './actions/scanInputs.js'
 import fillInputById from './actions/fillInputById.js'
 import selectElementEnable from './actions/selectElementEnable'
 import { MESSAGE_TYPES, ACTIONS } from '../constants.config.js'
-import { sendMessage } from '../helpers.config.js'
+import { sendMessage, sendToActiveTab } from '../helpers.config.js'
 
 // !! Escuchar mensajes del content_scripts y service_worker/background
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     
     switch (msg.action) {
+        case "STATE_BRODCAST": {
+            let respUpdate = "ok";
+            (async () =>  {
+                console.log("Enviando actualizacion a STATE_BRODCAST");
+                return await sendMessage("STATE_UPDATE", "STATE_UPDATE");
+            })().then( (rs) => {
+                respUpdate = rs;
+            });
+            sendResponse({status: 'ok', msg: respUpdate });
+            break;
+        }
         case ACTIONS.CONNECT: {
             sendResponse({status: 'ok' });
             break;

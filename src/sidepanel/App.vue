@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, onUnmounted } from "vue"
 import extConfig from '@/extension.config.js'
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.config.js'
 import extensionState from "../extensionState.config";
 import generarFakeValue from './utils/generarFakeValue';
 import generarPerfilFake from './utils/generarPerfilFake';
-import indexedDBManager from "../indexedDBManager";
+import db from "../indexedDBManager";
 
 const search = ref("")
 const filtroTipo = ref("all")
@@ -307,13 +307,30 @@ const actualizarEstadosRef = async () => {
   
 }
 
+
 /* Cargar popup */
 onMounted( async () => {
   console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
   const sendResponse = await sendMessage(MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
   if(sendResponse?.status === "ok") {
     await actualizarEstadosRef();
+    
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      (async () => {
+        if(message.type === "STATE_UPDATE") {
+          alert("Cambio detectado: ");
+          await actualizarEstadosRef();
+          sendResponse("HECHO !!!");
+        }
+      })();
+      console.log("Escuchando");
+      
+      return true;
+    });
+
   }
+
+
 });
 </script>
 

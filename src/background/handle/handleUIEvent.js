@@ -89,6 +89,12 @@ export default async function handleUIEvent(msg) {
                     }
 
                 }
+
+                console.log("Enviando actualizacion a STATE_BRODCAST ");
+                const resp = await sendToActiveTab({ type: "STATE_BRODCAST", action: "STATE_BRODCAST"});
+                console.log("Respuesta de STATE_UPDATE + STATE_BRODCAST ", { resp });
+                //await sendMessage("STATE_UPDATE", "STATE_UPDATE");
+
                 return { status: 'ok', msg: "Elemento seleccionado en Modo Selector" };
                 //return { status: 'ok', msg: {configDB: {...configDB }, itemModoSelector, elementosActual} };
             } catch (err) {

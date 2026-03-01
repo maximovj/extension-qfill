@@ -385,10 +385,12 @@ onMounted( async () => {
 
       <div v-if="modoEscaneo === 'visibles'">
         <p>Está opción solo buscará inputs visibles de la página actual</p>
+        <p class="my-2 text-red-400 font-medium" v-if="Object.keys(inputsAgrupados)?.length <= 0">No hay resultados, escanea la página</p>
       </div>
 
       <div v-if="modoEscaneo === 'todos'">
         <p>Está opción solo buscará todos los inputs de la página actual</p>
+        <p class="my-2 text-red-400 font-medium" v-if="Object.keys(inputsAgrupados)?.length <= 0">No hay resultados, escanea la página</p>
       </div>
 
       <div v-if="modoEscaneo === 'selector'">

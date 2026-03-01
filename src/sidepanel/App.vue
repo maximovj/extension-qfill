@@ -42,7 +42,7 @@ const obtenerInputs = async () => {
     ACTIONS.SCAN_INPUTS, 
     { soloVisibles: modoEscaneo.value === "visibles", modoEscaneo: modoEscaneo.value });
 
-  await actualizarEstadosRef();
+  //await actualizarEstadosRef();
 };
 
 const rellenarInput = async (input) => {
@@ -51,7 +51,7 @@ const rellenarInput = async (input) => {
       ACTIONS.FILL_INPUT_BY_ID, 
       { data: input });
 
-  await actualizarEstadosRef();
+  //await actualizarEstadosRef();
 };
 
 const rellenarTodos = async () => {
@@ -60,7 +60,7 @@ const rellenarTodos = async () => {
       ACTIONS.FILL_ALL_INPUTS, 
       { data: inputsSeleccionados.value });
 
-  await actualizarEstadosRef();
+  //await actualizarEstadosRef();
 };
 
 const activarModoSelector = async () => {
@@ -78,7 +78,7 @@ const activarModoSelector = async () => {
         itemModoSelector: itemModoSelector.value,
       });
 
-  await actualizarEstadosRef();
+  //await actualizarEstadosRef();
 };
 
 // Actualiza valores editables en tabla
@@ -181,7 +181,7 @@ const importarJSON = (event) => {
       };
   
       await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
-      await actualizarEstadosRef();
+      //await actualizarEstadosRef();
 
     } catch (err) {
       errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
@@ -221,12 +221,12 @@ const aplicarFakerFiller = async () => {
   };
   
   await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
-  await actualizarEstadosRef();
+  //await actualizarEstadosRef();
 }
 
 const eliminarTodoEscaneado = async () => {
   await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-  await actualizarEstadosRef();
+  //await actualizarEstadosRef();
 }
 
 // Inputs seleccionados
@@ -315,22 +315,11 @@ onMounted( async () => {
   if(sendResponse?.status === "ok") {
     await actualizarEstadosRef();
     
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      (async () => {
-        if(message.type === "STATE_UPDATE") {
-          alert("Cambio detectado: ");
-          await actualizarEstadosRef();
-          sendResponse("HECHO !!!");
-        }
-      })();
-      console.log("Escuchando");
-      
-      return true;
-    });
+    db.watchBrodcast(async ({payload}) => {
+      await actualizarEstadosRef();
+    }, "configuracion");
 
   }
-
-
 });
 </script>
 

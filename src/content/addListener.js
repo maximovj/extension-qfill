@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             let respUpdate = "ok";
             (async () =>  {
                 console.log("Enviando actualizacion a STATE_BRODCAST");
-                return await sendMessage("STATE_UPDATE", "STATE_UPDATE");
+                return await sendMessage("STATE_UPDATE", "STATE_UPDATE", msg.payload);
             })().then( (rs) => {
                 respUpdate = rs;
             });

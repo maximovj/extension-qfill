@@ -1,3 +1,4 @@
+import { sendToActiveTab, dispatchToActiveTab } from './helpers.config'
 class IndexedDBManager {
 
     /* =========================================================
@@ -172,6 +173,11 @@ class IndexedDBManager {
 
         this.schedulePersist();
 
+        console.log("Enviando actualizacion a STATE_BRODCAST ");
+        const broadcast = await dispatchToActiveTab("STATE_BRODCAST", "STATE_BRODCAST", { path, value });
+        console.log("Respuesta de STATE_UPDATE + STATE_BRODCAST ", { broadcast });
+        //await sendMessage("STATE_UPDATE", "STATE_UPDATE");
+
         return this.state;
     }
 
@@ -260,6 +266,41 @@ class IndexedDBManager {
     notify(path, value) {
         this.listeners.forEach(listener => {
             listener(this.state, path, value);
+        });
+    }
+
+    watchBrodcast(callback, path= "", key = null) {
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            (async () => {
+                if(message.type === "STATE_UPDATE" && typeof callback === 'function') {
+                    const payloadPath = message?.payload?.path || null;
+                    const payloadValue = message?.payload?.value || null;
+                    
+                    if(typeof path === 'string' && Array.isArray(key) && typeof payloadValue === 'object') {
+                        // Condiciones del key para ejecutar el callback
+                        const buscar = path?.split(".");
+                        const buscarStore = Object.values(this.STORES).some(value => value === buscar[0]);
+                        const filtrarCoincidencias = Object.values(key).filter(propiedad => Object.hasOwn(payloadValue, propiedad));
+                        const existeAlguna = key.some(item => filtrarCoincidencias.includes(item));
+                        if(existeAlguna && buscarStore) {
+                            await callback(message);
+                        }
+                    } else
+                    if(typeof path === 'string' && typeof payloadPath === 'string') {
+                        // Condiciones del path para ejecutar el callback
+                        const buscar = path?.split(".");
+                        const propiedades = payloadPath?.split(".");
+                        const buscarStore = Object.values(this.STORES).some(value => value === buscar[0]);
+                        const coincidencia = Object.values(buscar).some(value => propiedades.includes(value));
+                        const igualAPath = buscar.every(item => propiedades.includes(item));
+                        if((buscarStore) || (coincidencia && buscarStore) || igualAPath) {
+                            await callback(message);
+                        }
+                    }
+                }
+                sendResponse("STATE_UPDATE DONE !!!");
+            })();
+            return true;
         });
     }
 

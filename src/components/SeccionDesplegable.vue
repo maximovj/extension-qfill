@@ -43,5 +43,5 @@ defineProps({
   titulo: String,
 });
 
-const openInfo = ref(true);
+const openInfo = ref(false);
 </script>

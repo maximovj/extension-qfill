@@ -23,27 +23,40 @@
 <script setup>
 import { ref } from 'vue';
 const props = defineProps({
-    titulo: String
+    titulo: String,
+    mensaje: String,
 });
-const emits = defineEmits(['aceptar']);
 
 const dialogoRef = ref(null);
 
-const fnAccionCerrar = () => {
-    dialogoRef.value?.close();
+let resolvePromise = null;
+
+const abrir = () => {
+    dialogoRef.value?.showModal();
+
+    return new Promise((resolve) => {
+        resolvePromise  = resolve;
+    });
 }
 
-const fnAccionAbrir = () => {
-    dialogoRef.value?.showModal();
+const cerrar = (value = false) => {
+    dialogoRef.value?.close();
+    if(resolvePromise) {
+        resolvePromise(value);
+        resolvePromise = null;
+    }
 }
 
 const fnAccionAceptar = () => {
-    dialogoRef.value?.close();
-    emits("aceptar");
+    cerrar(true);
+}
+
+const fnAccionCerrar = () => {
+    cerrar(false);
 }
 
 defineExpose({
-    fnAccionAbrir, 
-    fnAccionCerrar, 
-});
+    abrir,
+    cerrar,
+})
 </script>

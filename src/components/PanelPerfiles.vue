@@ -7,7 +7,7 @@ import AlertaConfirmar from "./AlertaConfirmar.vue";
 
 const perfiles = ref([]);
 const editar = ref(null);
-const modalRef = ref(null);
+const alertaConfirmarRef = ref(null);
 const modalTitulo = ref('')
 const modalMensaje = ref('')
 
@@ -25,10 +25,15 @@ const fnAccionVolver = () => {
   editar.value = null;
 };
 
-const fnAccionEliminar = () => {
+const fnAccionEliminar = async () => {
   modalTitulo.value = 'CONFIRMAR';
   modalMensaje.value = '¿SEGURO QUE DESEAS ELIMINAR EL PERFIL?';
-  modalRef.value?.fnAccionAbrir();
+  const confirmado = await alertaConfirmarRef.value?.abrir();
+
+  if(confirmado) {
+    alert("El usuario aceptó");
+  }
+  
 }
 
 // Inputs seleccionados
@@ -85,7 +90,7 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-5 text-xs perspective-normal animate-slide-in">
-    <AlertaConfirmar :titulo="modalTitulo" :mensaje="modalMensaje" ref="modalRef" @aceptar="eliminarPefil" />
+    <AlertaConfirmar :titulo="modalTitulo" :mensaje="modalMensaje" ref="alertaConfirmarRef" @aceptar="eliminarPefil" />
     
     <!-- ===================== -->
     <!-- 🟦 MÓDULO : RESULTADOS -->

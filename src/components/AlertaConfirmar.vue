@@ -4,7 +4,7 @@
     items-center justify-center mx-auto my-auto shadow-2xl backdrop:bg-white/5 backdrop:backdrop-blur-sm"
     ref="dialogoRef">
         <section class="flex flex-col h-fit">
-            <header class="p-3 bg-gray-400 flex justify-between items-center">
+            <header class="p-3 bg-[var(--bg)] flex justify-between items-center">
                 <span class="text-[14px]">{{ titulo || "TITULO"  }}</span>
                 <span @click="fnAccionCerrar" class="cursor-pointer text-[10px] bg-[var(--surface)] border border-[var(--border)] px-2 py-1 rounded-full text-red-300">X</span>
             </header>

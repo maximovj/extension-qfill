@@ -107,6 +107,7 @@
    🧩 COMPONENTS
 ================================= */
 @layer components {
+
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -130,6 +131,15 @@
     cursor: pointer;
   }
 
+  .btn {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
   .btn-primary {
     background: var(--primary);
     color: white;
@@ -142,6 +152,86 @@
 
   .btn-primary:hover {
     background: var(--primary-hover);
+  }
+
+  .btn-outline-primary {
+    border: 1px solid var(--primary); /* blue-400 */
+    color: var(--text-primary);            /* blue-400 */
+    width: fit-content;
+    padding: 0.25rem;          /* px-1 py-1 = 4px */
+    border-radius: 0.25rem;    /* rounded */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--primary-hover); /* blue-500 */
+    color: white;
+  }
+
+  .btn-outline-blue {
+    border: 1px solid var(--primary); /* blue-400 */
+    color: var(--primary);            /* blue-400 */
+    width: fit-content;
+    padding: 0.25rem;          /* px-1 py-1 = 4px */
+    border-radius: 0.25rem;    /* rounded */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .btn-outline-blue:hover {
+    background-color: #3b82f6; /* blue-500 */
+    color: white;
+  }
+
+  .btn-outline-green {
+    border: 1px solid var(--color-green-400); /* green-400 */
+    color: var(--color-green-400);            /* green-400 */
+    width: fit-content;
+    padding: 0.25rem;          /* px-1 py-1 = 4px */
+    border-radius: 0.25rem;    /* rounded */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .btn-outline-green:hover {
+    background-color: var(--color-green-500); /* green-500 */
+    color: white;
+  }
+
+  .btn-outline-yellow {
+    border: 1px solid var(--color-yellow-400); /* yellow-400 */
+    color: var(--color-yellow-400);            /* yellow-400 */
+    width: fit-content;
+    padding: 0.25rem;          /* px-1 py-1 = 4px */
+    border-radius: 0.25rem;    /* rounded */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .btn-outline-yellow:hover {
+    background-color: var(--color-yellow-500); /* yellow-500 */
+    color: white;
+  }
+
+  .btn-outline-red {
+    border: 1px solid var(--color-red-400); /* red-400 */
+    color: var(--color-red-400);            /* red-400 */
+    width: fit-content;
+    padding: 0.25rem;          /* px-1 py-1 = 4px */
+    border-radius: 0.25rem;    /* rounded */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .btn-outline-red:hover {
+    background-color: var(--color-red-500); /* red-500 */
+    color: white;
   }
 
   .btn-secondary {

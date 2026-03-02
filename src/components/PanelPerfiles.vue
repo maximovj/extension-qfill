@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue";
 import { MESSAGE_TYPES, ACTIONS } from "@/constants.config.js";
 import { sendMessage } from "@/helpers.config.js";
+import generarFakeValue from '../sidepanel/utils/generarFakeValue';
+import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
 import db from "../indexedDBManager";
 import AlertaConfirmar from "./AlertaConfirmar.vue";
 import SeccionDesplegable from "./SeccionDesplegable.vue";
@@ -12,7 +14,33 @@ const alertaConfirmarRef = ref(null);
 const modalTitulo = ref("");
 const modalMensaje = ref("");
 
+// !! FUNCIONES COMPUTADAS
+
 const totalPerfiles = computed(() => perfiles.value?.length);
+
+// Inputs seleccionados
+
+const editarSeleccionados = computed(() =>
+  editar.value?.elementos.filter((i) => i.selected),
+);
+
+const editarTotalElementos = computed(
+  () => editar.value?.elementos?.length || 0,
+);
+
+const editarTotalSelecionados = computed(() => editarSeleccionados?.value?.length);
+
+const editarElementos = computed(() => editar?.value?.elementos);
+
+// !! FUNCIONES
+
+const slugify = (text) =>
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')        // espacios → guiones
+    .replace(/[^\w\-]+/g, '')    // elimina caracteres especiales
+    .replace(/\-\-+/g, '-');     // evita múltiples guiones
 
 const fnAccionEditar = (perfil) => {
   editar.value = perfil;
@@ -36,16 +64,14 @@ const fnAccionEliminar = async () => {
   }
 };
 
-// Inputs seleccionados
-const editarSeleccionados = computed(() =>
-  editar.value?.elementos.filter((i) => i.selected),
-);
+const cambiarSelectedATodos = (valor) => {
+  if (!editar.value?.elementos) return;
 
-const editarTotalElementos = computed(
-  () => editar.value?.elementos?.length || 0,
-);
-
-const editarTotalSelecionados = computed(() => editarSeleccionados?.value?.length);
+  editar.value.elementos = editar.value.elementos.map(item => ({
+    ...item,
+    selected: valor
+  }));
+};
 
 const eliminarPefil = () => {
   alert("Eliminar perfil");
@@ -74,6 +100,42 @@ const actualizarEstadosRef = async () => {
     editar.value = perfiles.value[0];
   }
 };
+
+const exportarJSON = () => {
+  const dataStr = JSON.stringify(editarSeleccionados.value, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const timestamp = Date.now();
+  const slugNombre = slugify(editar.value?.nombre || 'elementos');
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slugNombre}_${editarTotalElementos.value}_${timestamp}.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
+const aplicarFakerFiller = () => {
+  if (!editar.value?.elementos) return;
+
+  const perfil = generarPerfilFake();
+
+  editar.value.elementos = editar.value.elementos.map(i => {
+    if (!i.selected) return i;
+
+    return {
+      ...i,
+      value: generarFakeValue(i, perfil)
+    };
+  });
+};
+
+const eliminarTodos = () => {
+  editar.value.elementos = [];
+}
+
+// !! 
 
 onMounted(async () => {
   const sendResponse = await sendMessage(
@@ -147,18 +209,18 @@ onMounted(async () => {
           </div>
 
           <div class="flex flex-row gap-2">
-            <button class="text-[10px] text-blue-400 hover:underline">
+            <button class="btn btn-outline-blue">
               Cargar
             </button>
             <button
               @click="fnAccionEditar(perfil)"
-              class="text-[10px] text-yellow-400 hover:underline"
+              class="btn btn-outline-yellow"
             >
               Editar
             </button>
             <button
               @click="fnAccionEliminar"
-              class="text-[10px] text-red-400 hover:underline"
+              class="btn btn-outline-red"
             >
               Eliminar
             </button>
@@ -223,7 +285,7 @@ onMounted(async () => {
             <div v-if="editarTotalElementos > 0" class="grid grid-cols-2 my-2 space-y-2">
               <div>
                 <button
-                  @click="eliminarTodoEscaneado"
+                  @click="eliminarTodos"
                   class="btn btn-outline-red"
                 >
                   Eliminar todos

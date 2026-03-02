@@ -72,7 +72,8 @@
 ================================= */
 
 @theme {
-  --text-primary: var(--text-primary);
+  --text-text-primary: var(--text-primary);
+  --text-text-secondary: var(--text-secondary);
   --animate-pizarra-perfiles: pizarra-perfiles 0.5s ease-out forwards;
   --animate-slide-in: slide-in 0.5s ease-out forwards;
 }
@@ -118,6 +119,7 @@
     color: var(--primary);
     font-weight: 700;
     transition: all 0.3s ease-in-out;
+    cursor: pointer;
   }
 
   .text-menu-item-active, .text-menu-item:hover {
@@ -125,6 +127,7 @@
     text-decoration: underline var(--text-secondary);
     text-underline-offset: 3px;
     color: var(--primary-hover);
+    cursor: pointer;
   }
 
   .btn-primary {
@@ -170,4 +173,14 @@
   .input:focus {
     border-color: var(--primary);
   }
+
+  section.formulario {
+    transition: all 0.5s ease-in-out;
+    opacity: 1;
+  }
+
+  section.formulario:active {
+    opacity: 0;
+  }
+
 }

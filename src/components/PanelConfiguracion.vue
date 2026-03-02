@@ -505,20 +505,20 @@ onMounted( async () => {
         </div>
 
         <!-- MÓDULO 3: RESULTADOS | Acciones -->
-        <div class="grid grid-cols-2">
+        <div class="grid grid-cols-2 my-2 space-y-2">
           <div>
             <button
               @click="eliminarTodoEscaneado"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-red w-[164px]"
             >
-              Eliminar todos los elementos
+              Eliminar todos
             </button>
           </div>
           <div></div>
           <div>
             <button
               @click="cambiarSelectedATodos(true)"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-primary w-[164px]"
             >
               Seleccionar todos
             </button>
@@ -526,7 +526,7 @@ onMounted( async () => {
           <div>
             <button
               @click="cambiarSelectedATodos(false)"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-primary w-[164px]"
             >
               Deseleccionar todos
             </button>
@@ -534,7 +534,7 @@ onMounted( async () => {
           <div>
             <button
               @click="aplicarFakerFiller()"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-primary w-[164px]"
             >
               Aplicar Faker Filler ({{ totalSelecionados }})
             </button>
@@ -542,7 +542,7 @@ onMounted( async () => {
           <div>
             <button
               @click="rellenarTodos()"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-primary w-[164px]"
             >
               Rellenar seleccionados ({{ totalSelecionados }})
             </button>
@@ -550,7 +550,7 @@ onMounted( async () => {
           <div>
             <button
               @click="exportarJSON()"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-primary w-[164px]"
             >
               Exportar a JSON ({{ totalSelecionados }})
             </button>
@@ -558,7 +558,7 @@ onMounted( async () => {
           <div>
             <button
               @click="crearPerfil"
-              class="text-[10px] text-green-600 hover:underline"
+              class="btn btn-outline-primary w-[164px]"
             >
               Crear perfil ({{ totalSelecionados }})
             </button>
@@ -598,7 +598,7 @@ onMounted( async () => {
                 <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
                 <button
                   @click="rellenarInputAnimado(i)"
-                  class="text-[10px] text-green-600 hover:underline"
+                  class="btn btn-outline-green"
                 >
                   Rellenar
                 </button>

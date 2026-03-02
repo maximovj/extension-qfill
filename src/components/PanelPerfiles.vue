@@ -4,12 +4,13 @@ import { MESSAGE_TYPES, ACTIONS } from "@/constants.config.js";
 import { sendMessage } from "@/helpers.config.js";
 import db from "../indexedDBManager";
 import AlertaConfirmar from "./AlertaConfirmar.vue";
+import SeccionDesplegable from "./SeccionDesplegable.vue";
 
 const perfiles = ref([]);
 const editar = ref(null);
 const alertaConfirmarRef = ref(null);
-const modalTitulo = ref('')
-const modalMensaje = ref('')
+const modalTitulo = ref("");
+const modalMensaje = ref("");
 
 const totalPerfiles = computed(() => perfiles.value?.length);
 
@@ -26,15 +27,14 @@ const fnAccionVolver = () => {
 };
 
 const fnAccionEliminar = async () => {
-  modalTitulo.value = 'CONFIRMAR';
-  modalMensaje.value = '¿SEGURO QUE DESEAS ELIMINAR EL PERFIL?';
+  modalTitulo.value = "CONFIRMAR";
+  modalMensaje.value = "¿SEGURO QUE DESEAS ELIMINAR EL PERFIL?";
   const confirmado = await alertaConfirmarRef.value?.abrir();
 
-  if(confirmado) {
+  if (confirmado) {
     alert("El usuario aceptó");
   }
-  
-}
+};
 
 // Inputs seleccionados
 const editarSeleccionados = computed(() =>
@@ -45,9 +45,11 @@ const editarTotalElementos = computed(
   () => editar.value?.elementos?.length || 0,
 );
 
+const editarTotalSelecionados = computed(() => editarSeleccionados?.value?.length);
+
 const eliminarPefil = () => {
   alert("Eliminar perfil");
-}
+};
 
 const actualizarValor = (input, event) => {
   if (input.type === "checkbox") input.value = event.target.checked;
@@ -90,8 +92,13 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-5 text-xs perspective-normal animate-slide-in">
-    <AlertaConfirmar :titulo="modalTitulo" :mensaje="modalMensaje" ref="alertaConfirmarRef" @aceptar="eliminarPefil" />
-    
+    <AlertaConfirmar
+      :titulo="modalTitulo"
+      :mensaje="modalMensaje"
+      ref="alertaConfirmarRef"
+      @aceptar="eliminarPefil"
+    />
+
     <!-- ===================== -->
     <!-- 🟦 MÓDULO : RESULTADOS -->
     <!-- ===================== -->
@@ -149,9 +156,10 @@ onMounted(async () => {
             >
               Editar
             </button>
-            <button 
+            <button
               @click="fnAccionEliminar"
-              class="text-[10px] text-red-400 hover:underline">
+              class="text-[10px] text-red-400 hover:underline"
+            >
               Eliminar
             </button>
           </div>
@@ -167,17 +175,18 @@ onMounted(async () => {
       class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3"
     >
       <h2 class="text-[12px] font-semibold">
-        <span class="text-secondary cursor-pointer" @click="fnAccionVolver">Perfiles</span> >
+        <span class="text-secondary cursor-pointer" @click="fnAccionVolver"
+          >Perfiles</span
+        >
+        >
         <span class="text-menu-item-active">Modo edición</span>
       </h2>
 
       <div class="grid grid-cols-1 gap-2">
+
         <!-- Información del perfil -->
-        <details class="cursor-pointer" open>
-          <summary class="font-bold text-secondary">
-            Información del perfil
-          </summary>
-          <section class="formulario">
+        <SeccionDesplegable titulo="Información del perfil">
+          <template v-slot:contenido>
             <div class="m-2">
               <div class="flex flex-col gap-1 justify-center">
                 <label class="text-[10px] font-bold" for="nombre"
@@ -204,30 +213,27 @@ onMounted(async () => {
                 />
               </div>
             </div>
-          </section>
-        </details>
+          </template>
+        </SeccionDesplegable>
 
         <!-- Elementos -->
-        <details>
-          <summary class="font-bold text-secondary">
-            Elementos ({{ editarTotalElementos }})
-          </summary>
-          <section class="my-2">
+        <SeccionDesplegable :titulo="`Elementos (${editarTotalElementos})`">
+          <template v-slot:contenido>
             <!-- Elementos | Acciones -->
-            <div v-if="editarTotalElementos > 0" class="grid grid-cols-2 m-2">
+            <div v-if="editarTotalElementos > 0" class="grid grid-cols-2 my-2 space-y-2">
               <div>
                 <button
                   @click="eliminarTodoEscaneado"
-                  class="text-[10px] text-green-600 hover:underline"
+                  class="btn btn-outline-red"
                 >
-                  Eliminar todos los elementos
+                  Eliminar todos
                 </button>
               </div>
               <div></div>
               <div>
                 <button
                   @click="cambiarSelectedATodos(true)"
-                  class="text-[10px] text-green-600 hover:underline"
+                  class="btn btn-outline-primary"
                 >
                   Seleccionar todos
                 </button>
@@ -235,7 +241,7 @@ onMounted(async () => {
               <div>
                 <button
                   @click="cambiarSelectedATodos(false)"
-                  class="text-[10px] text-green-600 hover:underline"
+                  class="btn btn-outline-primary"
                 >
                   Deseleccionar todos
                 </button>
@@ -243,19 +249,22 @@ onMounted(async () => {
               <div>
                 <button
                   @click="aplicarFakerFiller()"
-                  class="text-[10px] text-green-600 hover:underline"
+                  class="btn btn-outline-primary"
                 >
-                  Aplicar Faker Filler ({{ totalSelecionados }})
+                  Aplicar Faker Filler ({{ editarTotalSelecionados }})
                 </button>
               </div>
               <div>
                 <button
                   @click="exportarJSON()"
-                  class="text-[10px] text-green-600 hover:underline"
+                  class="btn btn-outline-primary"
                 >
-                  Exportar a JSON ({{ totalSelecionados }})
+                  Exportar a JSON ({{ editarTotalSelecionados }})
                 </button>
               </div>
+            </div>
+            <div v-else>
+              <span>No hay elementos</span>
             </div>
 
             <div class="grid grid-cols-1 gap-2 overflow-y-auto max-h-[260px]">
@@ -334,30 +343,33 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-          </section>
-        </details>
+          </template>
+        </SeccionDesplegable>
+
+        <!-- Acciones -->
+        <div class="flex gap-2">
+          <button
+            class="btn btn-outline-green cursor-pointer"
+            @click="fnAccionGuardar(editar)"
+          >
+            Guardar
+          </button>
+          <button
+            class="btn btn-outline-blue cursor-pointer"
+            @click="fnAccionGuardar(editar)"
+          >
+            Cargar
+          </button>
+          <button
+            class="btn btn-outline-red cursor-pointer"
+            @click="fnAccionEliminar"
+          >
+            Eliminar
+          </button>
+        </div>
+
       </div>
 
-      <div class="flex gap-2">
-        <button
-          class="text-[10px] text-green-400 cursor-pointer"
-          @click="fnAccionGuardar(editar)"
-        >
-          Guardar
-        </button>
-        <button
-          class="text-[10px] text-blue-400 cursor-pointer"
-          @click="fnAccionGuardar(editar)"
-        >
-          Cargar
-        </button>
-        <button
-          class="text-[10px] text-red-400 cursor-pointer"
-          @click="fnAccionEliminar"
-        >
-          Eliminar
-        </button>
-      </div>
     </section>
   </div>
 </template>

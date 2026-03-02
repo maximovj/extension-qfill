@@ -8,6 +8,7 @@ export const MESSAGE_TYPES = {
 export const ACTIONS = {
     CONNECT: "system.connect",
     ASYNC_CONFIG: "system.async.config",
+    ASYNC_PROFILES: "system.async.profiles",
     STORAGE_GET: "storage.get",
     STORAGE_SET: "storage.set",
 
@@ -24,4 +25,5 @@ export const ACTIONS = {
     SELECTOR_MODE_ENABLE: "ui.selectorModeEnable",
     SELECTOR_MODE_SET_ITEM: "ui.selectorModeSetItem",
     SELECTOR_MODE_GET_ITEM: "ui.selectorModeGetItem",
+    CREATE_PROFILE: "ui.createProfile",
 };

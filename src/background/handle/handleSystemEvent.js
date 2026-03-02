@@ -12,5 +12,10 @@ export default async function handleSystemEvent(msg) {
             const stateDB = await db.get();
             return { status: 'ok', msg: stateDB };
         }
+
+        case ACTIONS.ASYNC_PROFILES: {
+            const storePerfiles = await db.get("perfiles");
+            return { status: 'ok', msg: { storePerfiles } };
+        }
     }
 }

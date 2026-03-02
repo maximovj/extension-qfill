@@ -5,6 +5,7 @@ import db from '../../indexedDBManager';
 
 export default async function handleUIEvent(msg) {
     const storeConfig = await db.get(db.STORES.CONFIGURACION);
+    const storePerfiles = await db.get(db.STORES.PERFILES);
     let configDB = {};
     
     switch(msg.action) {
@@ -95,6 +96,28 @@ export default async function handleUIEvent(msg) {
                 return { status: 'ok', msg: "Elemento seleccionado en Modo Selector" };
                 //return { status: 'ok', msg: {configDB: {...configDB }, itemModoSelector, elementosActual} };
             } catch (err) {
+                await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
+                console.log("Hubo un error:", {err, msg});
+                return err;
+            }
+        }
+
+        case ACTIONS.CREATE_PROFILE: {
+            try {
+                const { elementos } = msg?.payload;
+                const contador = storePerfiles?.length;
+                await db.set(db.STORES.PERFILES, [
+                    ...storePerfiles,
+                    {
+                        nombre: `Perfil No. #${contador+1}`,    
+                        descripcion: `${elementos?.length || 0} elementos disponibles`,
+                        elementos,
+                        actualizado: Date.now(),
+                        creado: Date.now(),
+                    }
+                ]);
+                return { status: 'ok', msg: "Perfil creado correctamente"};
+            } catch (error) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
                 console.log("Hubo un error:", {err, msg});
                 return err;

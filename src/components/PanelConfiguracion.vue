@@ -1,13 +1,13 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue"
 import extConfig from '@/extension.config.js'
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
-import { sendMessage, dispatchRuntime, dispatchToBackground } from '@/helpers.config.js'
-import extensionState from "../extensionState.config";
+import { sendMessage } from '@/helpers.config.js'
 import generarFakeValue from '../sidepanel/utils/generarFakeValue';
 import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
 import db from "../indexedDBManager";
 
+const emit = defineEmits(["perfilNuevoCreado"]);
 const search = ref("")
 const filtroTipo = ref("all")
 const animando = ref(null)
@@ -84,6 +84,18 @@ const activarModoSelector = async () => {
 
   //await actualizarEstadosRef();
 };
+
+const crearPerfil = async () => {
+  const strFecha = new Date().toISOString();
+
+  const sendResp = await sendMessage(
+      MESSAGE_TYPES.UI_EVENT,
+        ACTIONS.CREATE_PROFILE, {
+        elementos: inputsSeleccionados.value,
+      });
+
+  emit("perfilNuevoCreado", sendResp);
+}
 
 // Actualiza valores editables en tabla
 const actualizarValor = (input, event) => {
@@ -233,14 +245,6 @@ const eliminarTodoEscaneado = async () => {
   //await actualizarEstadosRef();
 }
 
-const togglePizarra = () => {
-  if(pizarraRef.value === 'perfiles') {
-    pizarraRef.value = 'panel';
-  } else if (pizarraRef.value === 'panel') {
-    pizarraRef.value = 'perfiles';
-  }
-}
-
 // Inputs seleccionados
 const inputsSeleccionados = computed(() => inputs.value.filter( i => i.selected));
 
@@ -318,7 +322,6 @@ const actualizarEstadosRef = async () => {
   }
   
 }
-
 
 /* Cargar popup */
 onMounted( async () => {
@@ -550,6 +553,14 @@ onMounted( async () => {
               class="text-[10px] text-green-600 hover:underline"
             >
               Exportar a JSON ({{ totalSelecionados }})
+            </button>
+          </div>
+          <div>
+            <button
+              @click="crearPerfil"
+              class="text-[10px] text-green-600 hover:underline"
+            >
+              Crear perfil ({{ totalSelecionados }})
             </button>
           </div>
         </div>

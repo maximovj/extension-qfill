@@ -43,7 +43,7 @@
         </div>
 
         <PanelPerfiles v-if="panel === 'perfiles'" />
-        <PanelConfiguracion v-if="panel === 'configuracion'" />
+        <PanelConfiguracion v-if="panel === 'configuracion'" @perfil-nuevo-creado="mostrarPanelPerfiles" />
         <PanelHistorial v-if="panel === 'historial'" />
     </div>
 </template>
@@ -68,13 +68,13 @@ export default {
     },
     methods: {
         mostrarPanelConfiguracion(){ 
-            this.panel = 'configuracion';
+            this.panel = "configuracion";
         },
         mostrarPanelPerfiles(){ 
-            this.panel = 'perfiles';
+            this.panel = "perfiles";
         },
         mostrarPanelHistorial(){ 
-            this.panel = 'historial';
+            this.panel = "historial";
         },
     }
 }

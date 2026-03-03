@@ -13,8 +13,8 @@
             </main>
             <span class="inline-block border-gray-500 opacity-50 border-[0.025rem] rounded-4xl"></span>
             <footer class="p-3 flex justify-end gap-2">
-                <button @click="fnAccionCerrar" class="btn-primary">Cancelar</button>
-                <button @click="fnAccionAceptar" class="btn-primary">Aceptar</button>
+                <button @click="fnAccionCerrar" class="btn btn-outline-red">Cancelar</button>
+                <button @click="fnAccionAceptar" class="btn btn-outline-green">Aceptar</button>
             </footer>
         </section>
     </dialog>

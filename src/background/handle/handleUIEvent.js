@@ -4,7 +4,10 @@ import extensionState from '../../extensionState.config';
 import db from '../../indexedDBManager';
 
 export default async function handleUIEvent(msg) {
-    const storeConfig = await db.get(db.STORES.CONFIGURACION);
+    const stateLocal = await chrome.runtime.sendMessage({
+        type: "GET_STATE"
+    });
+    const storeConfig = stateLocal?.configuracion;
     const storePerfiles = await db.get(db.STORES.PERFILES);
     let configDB = {};
     
@@ -19,16 +22,8 @@ export default async function handleUIEvent(msg) {
             try {
                 const { modoEscaneo } = msg?.payload;
                 const inputs = await sendToActiveTab(msg);
-                await db.set(db.STORES.CONFIGURACION, {
-                    ...storeConfig,
-                    actualizado: Date.now(),
-                    elementoSeleccionado: {},
-                    elementos: inputs,
-                    modo: modoEscaneo || "visibles",
-                    selectorActivado: false
-                });
-
-                return { status: 'ok', msg: "Elementos escaneados" };
+                
+                return { status: 'ok', msg: "Elementos escaneados", payload: inputs };
                 //return { status: 'ok', msg: { configDB: {...configDB }, respuesta} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);

@@ -37,9 +37,9 @@ export default async function handleStateEvent(msg) {
         case ACTIONS.STATE_RESET: {
             try {
                 await extensionState.reset();
-                await db.set("configuracion", db.defaultConfiguracion());
-                const stateDB = await db.get();
-                return { status: 'ok', msg: stateDB };
+                //await db.set("configuracion", db.defaultConfiguracion());
+                //const stateDB = await db.get();
+                return { status: 'ok' };
             } catch (err) {
                 console.log("Hubo un error:", {err, msg});
                 return err;

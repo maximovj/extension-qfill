@@ -5,8 +5,14 @@ import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage } from '@/helpers.config.js'
 import generarFakeValue from '../sidepanel/utils/generarFakeValue';
 import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
+import { sendToActiveTab } from "../helpers.config";
 import db from "../indexedDBManager";
 
+// 
+let localState = ref(null);
+let messageListener = null;
+
+const configuracion = ref(null);
 const emit = defineEmits(["perfilNuevoCreado"]);
 const search = ref("")
 const filtroTipo = ref("all")
@@ -39,10 +45,28 @@ const obtenerInputs = async () => {
   nombreArchivoJson.value = null; 
   filtroTipo.value = 'all';
 
-  await sendMessage(
+  const respX = await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
     ACTIONS.SCAN_INPUTS, 
     { soloVisibles: modoEscaneo.value === "visibles", modoEscaneo: modoEscaneo.value });
+
+    alert(JSON.stringify(respX, null, -2));
+
+    await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+          type: "CONFIG_SAVE",
+          payload: {
+              actualizado: Date.now(),
+              elementoSeleccionado: {},
+              elementos: respX?.payload,
+              modo: modoEscaneo.value,
+              selectorActivado: modoSelector.value,
+          }
+      }
+    });
+    
+    cargarConfiguracion();
 
   //await actualizarEstadosRef();
 };
@@ -69,20 +93,20 @@ const activarModoSelector = async () => {
   modoSelector.value = true;
   msgModoSelector.value = 'Modo Selector Activado';
   statusModoSelector.value = 'success';
+
+  await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+        type: "CONFIG_SAVE",
+        payload: {
+          ...configuracion.value,
+          modo: "selector",
+          selectorActivado: true,
+          actualizado: Date.now(),
+        }
+      }
+    });
   
-
-  await sendMessage(
-      MESSAGE_TYPES.UI_EVENT,
-      ACTIONS.SELECTOR_MODE_ENABLE, {
-        modoEscaneo: modoEscaneo.value,
-        modoSelector: modoSelector.value,
-        modoAccion: modoSelectorAccion.value,
-        msgModoSelector: msgModoSelector.value,
-        statusModoSelector: statusModoSelector.value,
-        itemModoSelector: itemModoSelector.value,
-      });
-
-  //await actualizarEstadosRef();
 };
 
 const crearPerfil = async () => {
@@ -323,24 +347,59 @@ const actualizarEstadosRef = async () => {
   
 }
 
+// Cargar perfiles
+const cargarConfiguracion = async () => {
+  localState.value = await chrome.runtime.sendMessage({
+    type: "GET_STATE"
+  });
+  configuracion.value = localState.value?.configuracion;
+  esEscaneado.value = configuracion.value?.elementos?.length > 0;
+  inputs.value = configuracion.value?.elementos || [];
+  modoEscaneo.value =  configuracion.value?.modo || "visibles";
+  modoSelector.value = configuracion.value?.selectorActivado || false;
+  modoSelectorAccion.value = configuracion.value?.selectorAccion || "agregar";
+}
+
+// CHANGE: Eliminar este método de prueba
+const test = async () => {
+  await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+        type: "CONFIG_SAVE",
+        payload: {
+          ...configuracion.value,
+          modo: "selector",
+          selectorActivado: true,
+          actualizado: Date.now(),
+        }
+      }
+    });  
+}
+
 /* Cargar popup */
 onMounted( async () => {
-  console.log(`Cargando extensión ${extConfig.header_title} ${extConfig.header_version} [...] `);
-  const sendResponse = await sendMessage(MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.CONNECT);
-  if(sendResponse?.status === "ok") {
-    await actualizarEstadosRef();
-    
-    db.watchBrodcast(async ({payload}) => {
-      await actualizarEstadosRef();
-    }, "configuracion");
+  await cargarConfiguracion();
+  messageListener = async (message) => {
+    if (message.type === "STATE_UPDATED") {
+      localState.value = message.state;
+      await cargarConfiguracion();
+    }
+  };
 
-  }
+  chrome.runtime.onMessage.addListener(messageListener);
+});
+
+onUnmounted(() => {
+  chrome.runtime.onMessage.removeListener(messageListener);
+  localState.value = null;
 });
 </script>
 
 
 <template>
   <div class="space-y-5 text-xs perspective-normal animate-slide-in">
+
+    <button @click="test">Test</button>
     
     <!-- ===================== -->
     <!-- 🟦 MÓDULO 1: ESCANEO -->

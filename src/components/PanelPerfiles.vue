@@ -8,6 +8,10 @@ import db from "../indexedDBManager";
 import AlertaConfirmar from "./AlertaConfirmar.vue";
 import SeccionDesplegable from "./SeccionDesplegable.vue";
 
+// 
+let localState = ref(null);
+let messageListener = null;
+
 const perfiles = ref([]);
 const editar = ref(null);
 const alertaConfirmarRef = ref(null);
@@ -46,21 +50,50 @@ const fnAccionEditar = (perfil) => {
   editar.value = perfil;
 };
 
-const fnAccionGuardar = (perfil) => {
-  editar.value = null;
+const fnAccionActualizar = async (perfil) => {
+  modalTitulo.value = "CONFIRMAR";
+  modalMensaje.value = "¿SEGURO QUE DESEAS ACTUALIZAR ESTE PERFIL?";
+  const confirmado = await alertaConfirmarRef.value?.abrir();
+
+  if(confirmado) {
+    await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+        type: "PERFIL_UPDATE",
+        payload: {
+          id: perfil?.id,
+          changes: {
+            nombre: perfil?.nombre,
+            descripcion: perfil?.descripcion,
+            actualizado: Date.now()
+          }
+        }
+      }
+    });
+    editar.value = null;
+  }
 };
 
 const fnAccionVolver = () => {
   editar.value = null;
 };
 
-const fnAccionEliminar = async () => {
+const fnAccionEliminar = async (perfil) => {
   modalTitulo.value = "CONFIRMAR";
   modalMensaje.value = "¿SEGURO QUE DESEAS ELIMINAR EL PERFIL?";
   const confirmado = await alertaConfirmarRef.value?.abrir();
 
   if (confirmado) {
-    alert("El usuario aceptó");
+    await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+        type: "PERFIL_DELETE",
+        payload: {
+          id: perfil?.id,
+        }
+      }
+    });
+    editar.value = null;
   }
 };
 
@@ -71,10 +104,6 @@ const cambiarSelectedATodos = (valor) => {
     ...item,
     selected: valor
   }));
-};
-
-const eliminarPefil = () => {
-  alert("Eliminar perfil");
 };
 
 const actualizarValor = (input, event) => {
@@ -135,20 +164,36 @@ const eliminarTodos = () => {
   editar.value.elementos = [];
 }
 
+// Cargar perfiles
+const cargarPerfiles = async () => {
+  localState.value = await chrome.runtime.sendMessage({
+    type: "GET_STATE"
+  });
+  perfiles.value = localState.value?.perfiles;
+}
+
+// CHANGE: Eliminar este método de prueba
+const test = async () => {
+  
+}
+
 // !! 
 
 onMounted(async () => {
-  const sendResponse = await sendMessage(
-    MESSAGE_TYPES.SYSTEM_EVENT,
-    ACTIONS.CONNECT,
-  );
-  if (sendResponse?.status === "ok") {
-    await actualizarEstadosRef();
-    editar.value = null;
-    db.watchBrodcast(async ({ payload }) => {
-      await actualizarEstadosRef();
-    }, "perfiles");
-  }
+  await cargarPerfiles();
+  messageListener = async (message) => {
+    if (message.type === "STATE_UPDATED") {
+      localState.value = message.state;
+      await cargarPerfiles();
+    }
+  };
+
+  chrome.runtime.onMessage.addListener(messageListener);
+});
+
+onUnmounted(() => {
+  chrome.runtime.onMessage.removeListener(messageListener);
+  localState.value = null;
 });
 </script>
 
@@ -173,6 +218,11 @@ onMounted(async () => {
         <span class="text-[10px] text-[var(--text-secondary)]">
           {{ totalPerfiles }} perfiles
         </span>
+      </div>
+
+      <div v-if="perfiles?.length <= 0">
+        <span>No hay perfiles creadas.</span> <br/>
+        <span>Escanea para crear un perfil.</span>
       </div>
 
       <div class="space-y-3">
@@ -219,7 +269,7 @@ onMounted(async () => {
               Editar
             </button>
             <button
-              @click="fnAccionEliminar"
+              @click="fnAccionEliminar(perfil)"
               class="btn btn-outline-red"
             >
               Eliminar
@@ -412,19 +462,18 @@ onMounted(async () => {
         <div class="flex gap-2">
           <button
             class="btn btn-outline-green cursor-pointer"
-            @click="fnAccionGuardar(editar)"
+            @click="fnAccionActualizar(editar)"
           >
-            Guardar
+            Actualizar
           </button>
           <button
             class="btn btn-outline-blue cursor-pointer"
-            @click="fnAccionGuardar(editar)"
           >
             Cargar
           </button>
           <button
             class="btn btn-outline-red cursor-pointer"
-            @click="fnAccionEliminar"
+            @click="fnAccionEliminar(editar)"
           >
             Eliminar
           </button>

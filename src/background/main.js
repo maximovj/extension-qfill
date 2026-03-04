@@ -2,6 +2,7 @@ import extConfig from '../extension.config.js'
 import handleMessages from './handleMessages.js'
 import extensionState from '../extensionState.config.js'
 import db from '../indexedDBManager.js';
+import syncLayer  from '../syncLayer.js';
 
 // Se ejecuta cuando la extensión se instala o actualiza
 chrome.runtime.onInstalled.addListener(() => {
@@ -11,6 +12,7 @@ chrome.runtime.onInstalled.addListener(() => {
     (async () => {
         try {
             await db.initDatabase(); // asegura defaults
+            syncLayer.init();
         } catch (err) {
             console.error("Error inicializando IndexedDB:", err);
         }
@@ -22,6 +24,7 @@ chrome.runtime.onStartup.addListener(() => {
     (async () => {
         try {
             await db.initDatabase(); // asegura defaults
+            syncLayer.init();
         } catch (err) {
             console.error("Error inicializando IndexedDB:", err);
         }
@@ -42,8 +45,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse(resultado);
         } catch (error) {
             await extensionState.reset();
-            await db.set("configuracion", db.defaultConfiguracion());
-            console.log("Hubo un error en background:", { message, error});
+            //await db.set("configuracion", db.defaultConfiguracion());
+            //console.log("Hubo un error en background:", { message, error});
             sendResponse({ status: "error", msg: { message, error} });
         }
     })();

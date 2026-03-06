@@ -1,4 +1,5 @@
 // IndexedDBManager.js
+// Versión: v2.0
 
 class IndexedDBManager {
 
@@ -49,6 +50,7 @@ class IndexedDBManager {
         this.db = null;
         this.state = {};
         this.listeners = new Set();
+        this.meta = {};
 
         IndexedDBManager.instance = this;
     }
@@ -90,22 +92,37 @@ class IndexedDBManager {
     ========================================================= */
     async initDatabase() {
         const db = await this.init();
-
         const storeNames = Object.values(this.STORES).map(s => s.name);
         const tx = db.transaction(storeNames, "readonly");
+        this.meta = {};
 
         for (const store of Object.values(this.STORES)) {
             const request = tx.objectStore(store.name).getAll();
-
-            this.state[store.name] = await new Promise(resolve => {
-                request.onsuccess = () => {
-                    if (store.type === "single") {
-                        resolve(request.result[0] ?? this.defaultStore(store.name));
-                    } else {
-                        resolve(request.result ?? []);
-                    }
-                };
+            const result = await new Promise(resolve => {
+                request.onsuccess = () => resolve(request.result ?? []);
             });
+
+            if (store.type === "single") {
+                this.state[store.name] = result[0] ?? this.defaultStore(store.name);
+            } else {
+                this.state[store.name] = result;
+            }
+
+            /* ===============================
+            🧠 META INFO (lastId)
+            =============================== */
+            if (store.type === "collection") {
+                const key = store.keyPath;
+                let lastId = 0;
+                for (const item of result) {
+                    if (item[key] > lastId) {
+                        lastId = item[key];
+                    }
+                }
+                this.meta[store.name] = {
+                    lastId
+                };
+            }
         }
     }
 
@@ -282,6 +299,168 @@ class IndexedDBManager {
             request.onerror = () => reject(request.error);
         });
     }
+
+    // uso: const perfil = await DB.getById("perfiles", 1);
+    async getById(storeName, id) {
+        const storeConfig = this.STORES[storeName];
+        const key = storeConfig.keyPath;
+
+        return this.state[storeName]
+            .find(item => item[key] === id) ?? null;
+    }
+
+    // uso: await DB.clear("perfiles");
+    async clear(storeName) {
+        const storeConfig = this.STORES[storeName];
+        const db = await this.init();
+
+        const tx = db.transaction(storeConfig.name, "readwrite");
+        const store = tx.objectStore(storeConfig.name);
+
+        store.clear();
+
+        this.state[storeName] = [];
+
+        this.notify(storeName, []);
+    }
+
+    // uso:
+    /*
+    DB.watch("configuracion.modo", (value) => {
+            console.log("modo cambio:", value);
+    });
+    */
+    watch(path, callback) {
+        const listener = (state, changedPath, value) => {
+
+            if (changedPath.startsWith(path)) {
+                callback(value, state);
+            }
+
+        };
+
+        this.listeners.add(listener);
+
+        return () => this.listeners.delete(listener);
+    }
+
+    // uso: await DB.set("configuracion.modo", "ocultos");
+    async set(path, value) {
+        const keys = path.split(".");
+        const storeName = keys.shift();
+
+        let target = this.state[storeName];
+
+        while (keys.length > 1) {
+            target = target[keys.shift()];
+        }
+
+        const lastKey = keys[0];
+
+        target[lastKey] = value;
+
+        if (this.STORES[storeName].type === "single") {
+            await this.saveSingle(storeName, this.state[storeName]);
+        }
+
+        this.notify(path, value);
+    }
+
+    // uso:
+    /*
+    await DB.push("perfiles", {
+        nombre: "admin"
+    });
+    */
+    async push(storeName, data) {
+        return this.create(storeName, data);
+    }
+    
+    // uso: await DB.remove("perfiles", 5);
+    async remove(storeName, id) {
+        return this.delete(storeName, id);
+    }
+
+    // uso: await DB.updateByPath("configuracion.selectorActivado", true);
+    async updateByPath(path, value) {
+        const keys = path.split(".");
+        const storeName = keys.shift();
+
+        let obj = this.state[storeName];
+
+        while (keys.length > 1) {
+            obj = obj[keys.shift()];
+        }
+
+        obj[keys[0]] = value;
+
+        await this.saveSingle(storeName, this.state[storeName]);
+
+        this.notify(path, value);
+    }
+
+    // uso: const total = await DB.count("perfiles");
+    async count(storeName) {
+        const storeConfig = this.STORES[storeName];
+        const db = await this.init();
+
+        return new Promise((resolve, reject) => {
+
+            const tx = db.transaction(storeConfig.name, "readonly");
+            const store = tx.objectStore(storeConfig.name);
+
+            const request = store.count();
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+
+        });
+    }
+
+    // uso: const lastId = await DB.getLastId("perfiles");
+    async getLastId(storeName) {
+        const storeConfig = this.STORES[storeName];
+        const data = await this.getAll(storeConfig?.name);
+
+        if (!Array.isArray(data) || data.length === 0) {
+            return null;
+        }
+
+        const key = storeConfig.keyPath;
+
+        return Math.max(...data.map(item => item[key]));
+    }
+
+    // uso: const ids = await DB.getIdInfo("perfiles");
+    async getIdInfo(storeName) {
+        const storeConfig = this.STORES[storeName];
+        const data = await this.getAll(storeConfig?.name);
+        console.log(" async getIdInfo(storeName) ", data);
+
+        if (!Array.isArray(data) || data.length === 0) {
+            return {
+                beforeId: null,
+                currentId: null,
+                nextId: 1
+            };
+        }
+
+        const key = storeConfig.keyPath;
+
+        // ordenar ids
+        const ids = data.map(item => item[key]).sort((a, b) => a - b);
+
+        const currentId = ids[ids.length - 1];
+        const beforeId = ids.length > 1 ? ids[ids.length - 2] : null;
+        const nextId = currentId + 1;
+
+        return {
+            beforeId,
+            currentId,
+            nextId
+        };
+    }
+
 }
 
 export default IndexedDBManager.getInstance();

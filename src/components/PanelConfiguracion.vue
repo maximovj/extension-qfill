@@ -38,6 +38,61 @@ const successJson = ref(null);
 const segment = "px-3 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg)] transition";
 const activeSegment = "px-3 py-1 bg-[var(--primary)] text-white";
 
+// !! FUNCIONES COMPUTADAS
+
+// Inputs seleccionados
+const inputsSeleccionados = computed(() => inputs.value.filter( i => i.selected));
+
+// Cantidad de seleccionados
+const totalSelecionados = computed(() => {
+  const cantidad = inputs.value.filter( i => i.selected)?.length || 0;
+  return cantidad > 99 ? '+99' : cantidad;
+});
+
+/* Tipos detectados dinámicamente */
+const tiposDisponibles = computed(() => {
+  const tipos = new Set(inputs.value.map(i => i.type))
+  return ["all", "name", "id", ...tipos]
+});
+
+/* Filtrado + búsqueda */
+const inputsFiltrados = computed(() => {
+  return inputs.value.filter(i => {
+    const coincideBusqueda =
+      !search.value ||
+      i.name?.toLowerCase().includes(search.value.toLowerCase()) ||
+      i.id?.toLowerCase().includes(search.value.toLowerCase())
+
+    const coincideTipo =
+      filtroTipo.value === "all" || i.type === filtroTipo.value
+
+    if(filtroTipo.value === "id") {
+      return filtroTipo.value === "id" && i.id !== null;
+    }
+
+    if(filtroTipo.value === "name") {
+      return filtroTipo.value === "name" && i.name !== null;
+    }
+
+    return coincideBusqueda && coincideTipo
+  });
+});
+
+/* Agrupar por formulario */
+const inputsAgrupados = computed(() => {
+  const grupos = {}
+
+  inputsFiltrados.value.forEach(i => {
+    const form = i.form || "Sin formulario"
+    if (!grupos[form]) grupos[form] = []
+    grupos[form].push(i)
+  })
+
+  return grupos
+});
+
+// !! SENDMESSAGE
+
 const obtenerInputs = async () => {
   fileJsonRef.value = null;
   successJson.value = null;
@@ -45,91 +100,80 @@ const obtenerInputs = async () => {
   nombreArchivoJson.value = null; 
   filtroTipo.value = 'all';
 
-  const respX = await sendMessage(
+  const sendResponse = await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
     ACTIONS.SCAN_INPUTS, 
     { soloVisibles: modoEscaneo.value === "visibles", modoEscaneo: modoEscaneo.value });
-
-    alert(JSON.stringify(respX, null, -2));
-
-    await chrome.runtime.sendMessage({
-      type: "DISPATCH",
-      action: {
-          type: "CONFIG_SAVE",
-          payload: {
-              actualizado: Date.now(),
-              elementoSeleccionado: {},
-              elementos: respX?.payload,
-              modo: modoEscaneo.value,
-              selectorActivado: modoSelector.value,
-          }
-      }
-    });
     
-    cargarConfiguracion();
-
-  //await actualizarEstadosRef();
+    inputs.value = sendResponse?.payload || [];
+    await persistirConfig();
+    await cargarConfiguracion();
 };
 
+const eliminarTodoEscaneado = async () => {
+  inputs.value = [];
+
+  await persistirConfig();
+  await cargarConfiguracion();
+}
+
+const aplicarFakerFiller = async () => {
+  const perfil = generarPerfilFake();
+  inputs.value = inputs.value.map( i => ({
+    ...i,
+    value: generarFakeValue(i, perfil)
+  }));
+
+  await persistirConfig();
+  await cargarConfiguracion();
+}
+
 const rellenarInput = async (input) => {
+  // TODO: Funcionando
   await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.FILL_INPUT_BY_ID, 
       { data: input });
-
-  //await actualizarEstadosRef();
 };
 
 const rellenarTodos = async () => {
+  // TODO: Funcionando
   await sendMessage(
       MESSAGE_TYPES.UI_EVENT,
       ACTIONS.FILL_ALL_INPUTS, 
       { data: inputsSeleccionados.value });
-
-  //await actualizarEstadosRef();
 };
 
 const activarModoSelector = async () => {
   modoSelector.value = true;
+  modoSelectorAccion.value = modoSelectorAccion.value;
   msgModoSelector.value = 'Modo Selector Activado';
   statusModoSelector.value = 'success';
 
-  await chrome.runtime.sendMessage({
-      type: "DISPATCH",
-      action: {
-        type: "CONFIG_SAVE",
-        payload: {
-          ...configuracion.value,
-          modo: "selector",
-          selectorActivado: true,
-          actualizado: Date.now(),
-        }
-      }
-    });
-  
+  await persistirConfig();
+  await cargarConfiguracion();
 };
 
 const crearPerfil = async () => {
-  const strFecha = new Date().toISOString();
+  const { nextId } = await db.getIdInfo("perfiles");
+  const nuevoPerfil = await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+        type: "PERFIL_CREATE",
+        payload: {
+          nombre: "Perfil #"+(nextId),
+          descripcion: (inputsSeleccionados.value?.length)+" elementos disponibles",
+          elementos: inputsSeleccionados.value,
+          creado: Date().now,
+          actualizado: Date().now,
+        },
+      }
+    });
 
-  const sendResp = await sendMessage(
-      MESSAGE_TYPES.UI_EVENT,
-        ACTIONS.CREATE_PROFILE, {
-        elementos: inputsSeleccionados.value,
-      });
-
-  emit("perfilNuevoCreado", sendResp);
+  emit("perfilNuevoCreado", nuevoPerfil);
 }
 
-// Actualiza valores editables en tabla
-const actualizarValor = (input, event) => {
-    if (input.type === 'checkbox') input.value = event.target.checked;
-    else if (input.type === 'number' || input.type === 'range') input.value = Number(event.target.value);
-    else if (input.type === 'select-multiple') input.value = Array.from(event.target.selectedOptions).map(opt => opt.value);
-    else input.value = event.target.value;
-};
-
-const cambiarModoEscaneo = (modo) => {
+const cambiarModoEscaneo = async (modo) => {
   switch(modo) {
     case 'json': 
       fileJsonRef.value = null;
@@ -147,9 +191,12 @@ const cambiarModoEscaneo = (modo) => {
     default:
       modoEscaneo.value = 'todos';
   }
+
+  await persistirConfig();
+  await cargarConfiguracion();
 }
 
-const cambiarModoSelectorAccion = (modo) => {
+const cambiarModoSelectorAccion = async (modo) => {
   switch(modo) {
     case 'agregar': 
       modoSelectorAccion.value = 'agregar';
@@ -163,15 +210,34 @@ const cambiarModoSelectorAccion = (modo) => {
     default:
       modoSelectorAccion.value = 'todos';
   }
+
+  await persistirConfig();
+  await cargarConfiguracion();
 }
 
-const cambiarSelectedATodos = (x) => {
+const cambiarSelectedATodos = async (x) => {
   inputs.value = inputs.value.map(item => ({...item, selected: x}));
+
+  await persistirConfig();
+  await cargarConfiguracion();
 }
 
-const activarImportacion = () => {
+const quitarValores = async () => {
+  inputs.value = inputs.value.map(item => {
+    if(!item?.selected) return item;
+    return {...item, value: null}
+  });
+  
+  await persistirConfig();
+  await cargarConfiguracion();
+};
+
+const activarImportacion = async () => {
   modoEscaneo.value = "json";
   fileJsonRef.value?.click();
+  
+  await persistirConfig();
+  await cargarConfiguracion();
 };
 
 const importarJSON = (event) => {
@@ -208,20 +274,8 @@ const importarJSON = (event) => {
         throw new Error("El JSON no tiene la estructura correcta")
       }
 
-      // por ejemplo, reemplazar tus inputs actuales
-      inputs.value = data
-      esEscaneado.value = true
-      modoEscaneo.value = 'json'
-      successJson.value = "✔️ JSON importado correctamente";
-
-      const setMany = {
-        'configuracion.modo': modoEscaneo.value,
-        'configuracion.actualizado': Date.now(),
-        'configuracion.elementos': inputs.value,
-      };
-  
-      await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
-      //await actualizarEstadosRef();
+      await persistirConfig();
+      await cargarConfiguracion();
 
     } catch (err) {
       errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
@@ -233,6 +287,34 @@ const importarJSON = (event) => {
 
   reader.readAsText(file)
 }
+
+
+// !! MÉTODOS
+
+const persistirConfig = async () => {
+  await chrome.runtime.sendMessage({
+      type: "DISPATCH",
+      action: {
+          type: "CONFIG_SAVE",
+          payload: {
+              actualizado: Date.now(),
+              elementoSeleccionado: {},
+              elementos: inputs.value,
+              modo: modoEscaneo.value,
+              selectorActivado: modoSelector.value,
+              selectorAccion: modoSelectorAccion.value,
+          }
+      }
+    });
+} 
+
+// Actualiza valores editables en tabla
+const actualizarValor = (input, event) => {
+    if (input.type === 'checkbox') input.value = event.target.checked;
+    else if (input.type === 'number' || input.type === 'range') input.value = Number(event.target.value);
+    else if (input.type === 'select-multiple') input.value = Array.from(event.target.selectedOptions).map(opt => opt.value);
+    else input.value = event.target.value;
+};
 
 const exportarJSON = () => {
   const dataStr = JSON.stringify(inputsSeleccionados.value, null, 2);
@@ -247,79 +329,6 @@ const exportarJSON = () => {
   URL.revokeObjectURL(url);
 };
 
-const aplicarFakerFiller = async () => {
-  const perfil = generarPerfilFake();
-  inputs.value = inputs.value.map( i => ({
-    ...i,
-    value: generarFakeValue(i, perfil)
-  }));
-
-  const setMany = {
-    'configuracion.modo': modoEscaneo.value,
-    'configuracion.actualizado': Date.now(),
-    'configuracion.elementos': inputs.value,
-  };
-  
-  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_SET_MANY, { setMany });
-  //await actualizarEstadosRef();
-}
-
-const eliminarTodoEscaneado = async () => {
-  await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-  //await actualizarEstadosRef();
-}
-
-// Inputs seleccionados
-const inputsSeleccionados = computed(() => inputs.value.filter( i => i.selected));
-
-// Cantidad de seleccionados
-const totalSelecionados = computed(() => {
-  const cantidad = inputs.value.filter( i => i.selected)?.length || 0;
-  return cantidad > 99 ? '+99' : cantidad;
-});
-
-/* Tipos detectados dinámicamente */
-const tiposDisponibles = computed(() => {
-  const tipos = new Set(inputs.value.map(i => i.type))
-  return ["all", "name", "id", ...tipos]
-})
-
-/* Filtrado + búsqueda */
-const inputsFiltrados = computed(() => {
-  return inputs.value.filter(i => {
-    const coincideBusqueda =
-      !search.value ||
-      i.name?.toLowerCase().includes(search.value.toLowerCase()) ||
-      i.id?.toLowerCase().includes(search.value.toLowerCase())
-
-    const coincideTipo =
-      filtroTipo.value === "all" || i.type === filtroTipo.value
-
-    if(filtroTipo.value === "id") {
-      return filtroTipo.value === "id" && i.id !== null;
-    }
-
-    if(filtroTipo.value === "name") {
-      return filtroTipo.value === "name" && i.name !== null;
-    }
-
-    return coincideBusqueda && coincideTipo
-  })
-})
-
-/* Agrupar por formulario */
-const inputsAgrupados = computed(() => {
-  const grupos = {}
-
-  inputsFiltrados.value.forEach(i => {
-    const form = i.form || "Sin formulario"
-    if (!grupos[form]) grupos[form] = []
-    grupos[form].push(i)
-  })
-
-  return grupos
-})
-
 /* Animación al rellenar */
 const rellenarInputAnimado = (input) => {
   rellenarInput(input)
@@ -328,23 +337,6 @@ const rellenarInputAnimado = (input) => {
   setTimeout(() => {
     animando.value = null
   }, 600);
-}
-
-const actualizarEstadosRef = async () => {
-  // Cargar la configuración
-  const configDB = await sendMessage(MESSAGE_TYPES.SYSTEM_EVENT, ACTIONS.ASYNC_CONFIG);
-
-  if(configDB?.status === "ok") {
-    const msg = configDB?.msg;
-    const storeConfiguracion = msg?.configuracion;
-    
-    esEscaneado.value = storeConfiguracion?.elementos?.length > 0;
-    inputs.value = storeConfiguracion?.elementos || [];
-    modoEscaneo.value =  storeConfiguracion?.modo || "visibles";
-    modoSelector.value = storeConfiguracion?.selectorActivado || false;
-    modoSelectorAccion.value = storeConfiguracion?.selectorAccion || "agregar";
-  }
-  
 }
 
 // Cargar perfiles
@@ -362,19 +354,10 @@ const cargarConfiguracion = async () => {
 
 // CHANGE: Eliminar este método de prueba
 const test = async () => {
-  await chrome.runtime.sendMessage({
-      type: "DISPATCH",
-      action: {
-        type: "CONFIG_SAVE",
-        payload: {
-          ...configuracion.value,
-          modo: "selector",
-          selectorActivado: true,
-          actualizado: Date.now(),
-        }
-      }
-    });  
+  
 }
+
+// !! CICLO DE VIDA (EVENTOS)
 
 /* Cargar popup */
 onMounted( async () => {
@@ -573,7 +556,14 @@ onUnmounted(() => {
               Eliminar todos
             </button>
           </div>
-          <div></div>
+          <div>
+            <button
+              @click="aplicarFakerFiller()"
+              class="btn btn-outline-primary w-[164px]"
+            >
+              Aplicar Faker Filler ({{ totalSelecionados }})
+            </button>
+          </div>
           <div>
             <button
               @click="cambiarSelectedATodos(true)"
@@ -592,18 +582,18 @@ onUnmounted(() => {
           </div>
           <div>
             <button
-              @click="aplicarFakerFiller()"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Aplicar Faker Filler ({{ totalSelecionados }})
-            </button>
-          </div>
-          <div>
-            <button
               @click="rellenarTodos()"
               class="btn btn-outline-primary w-[164px]"
             >
               Rellenar seleccionados ({{ totalSelecionados }})
+            </button>
+          </div>
+          <div>
+            <button
+              @click="quitarValores()"
+              class="btn btn-outline-primary w-[164px]"
+            >
+              Vaciar seleccionados ({{ totalSelecionados }})
             </button>
           </div>
           <div>

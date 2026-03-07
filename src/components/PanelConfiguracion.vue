@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue"
 import extConfig from '@/extension.config.js'
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
-import { sendMessage } from '@/helpers.config.js'
+import { sendMessage, sendToBackground } from '@/helpers.config.js'
 import generarFakeValue from '../sidepanel/utils/generarFakeValue';
 import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
 import { sendToActiveTab } from "../helpers.config";
@@ -150,6 +150,10 @@ const activarModoSelector = async () => {
   msgModoSelector.value = 'Modo Selector Activado';
   statusModoSelector.value = 'success';
 
+  const sendResponse = await sendMessage(
+    MESSAGE_TYPES.UI_EVENT,
+    ACTIONS.SELECTOR_MODE_ENABLE);
+
   await persistirConfig();
   await cargarConfiguracion();
 };
@@ -292,7 +296,7 @@ const importarJSON = (event) => {
 // !! MÉTODOS
 
 const persistirConfig = async () => {
-  await chrome.runtime.sendMessage({
+  await sendToBackground({
       type: "DISPATCH",
       action: {
           type: "CONFIG_SAVE",

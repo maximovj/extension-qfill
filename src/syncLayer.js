@@ -9,6 +9,7 @@ class SyncLayerV2 {
 
     // 🔥 Escuchar acciones externas (dispatch)
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      console.log("SyncLayerV2::init", {message, sender, sendResponse});
 
       if (message.type === "DISPATCH") {
         this.dispatch(message.action)
@@ -18,6 +19,7 @@ class SyncLayerV2 {
 
       if (message.type === "GET_STATE") {
         sendResponse(indexedDBManager.get());
+        return true;
       }
 
       return true;

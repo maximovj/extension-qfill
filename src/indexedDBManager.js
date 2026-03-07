@@ -160,11 +160,14 @@ class IndexedDBManager {
     ========================================================= */
     subscribe(listener) {
         this.listeners.add(listener);
+        console.log("subscribe:",listener,"se ha susbstrito a", this.listeners);
         return () => this.listeners.delete(listener);
     }
 
     notify(path, value) {
+        console.log("He recibido la notificación, procesado a ejecutar los subscriptos:", this.listeners);
         this.listeners.forEach(listener => {
+            console.log("Se ejecuta subscribe:", listener, "con path", {state: this.state, path, value});
             listener(this.state, path, value);
         });
     }
@@ -249,6 +252,7 @@ class IndexedDBManager {
     ========================================================= */
     async saveSingle(storeName, data) {
         const storeConfig = this.STORES[storeName];
+        console.log("saveSingle", {storeName, data, storeConfig});
         if (!storeConfig || storeConfig.type !== "single") {
             throw new Error(`Store ${storeName} no es tipo single`);
         }
@@ -258,14 +262,15 @@ class IndexedDBManager {
         const store = tx.objectStore(storeConfig.name);
 
         const payload = {
-            id: data.id ?? 200,
             ...data,
+            id: 200,
             actualizado: Date.now()
         };
 
         store.put(payload);
 
         this.state[storeName] = payload;
+        console.log("this.state[storeName]", this.state[storeName]);
 
         this.notify(storeName, payload);
 

@@ -38,13 +38,14 @@ chrome.action.onClicked.addListener((tab) => {
 
 //  Escucha y recibe las comunicaciones que le envían otras partes
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("background::main.js",{message, sender, sendResponse});
     (async () => {
         try {
             const resultado = await handleMessages(message, sender);
             console.log("Resultado de background:", {message, resultado});
             sendResponse(resultado);
         } catch (error) {
-            await extensionState.reset();
+            //await extensionState.reset();
             //await db.set("configuracion", db.defaultConfiguracion());
             //console.log("Hubo un error en background:", { message, error});
             sendResponse({ status: "error", msg: { message, error} });

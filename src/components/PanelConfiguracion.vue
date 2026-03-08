@@ -13,6 +13,7 @@ import SeccionDesplegable from "./SeccionDesplegable.vue";
 let localState = ref(null);
 let messageListener = null;
 
+const sectionVisible = ref("escaneo");
 const configuracion = ref(null);
 const emit = defineEmits(["perfilNuevoCreado"]);
 const search = ref("")
@@ -106,9 +107,10 @@ const obtenerInputs = async () => {
     ACTIONS.SCAN_INPUTS, 
     { soloVisibles: modoEscaneo.value === "visibles", modoEscaneo: modoEscaneo.value });
     
-    inputs.value = sendResponse?.payload || [];
-    await persistirConfig();
-    await cargarConfiguracion();
+  inputs.value = sendResponse?.payload || [];
+  await persistirConfig();
+  await cargarConfiguracion();
+  sectionVisible.value = "resultados";
 };
 
 const eliminarTodoEscaneado = async () => {
@@ -150,15 +152,24 @@ const rellenarTodos = async () => {
 const activarModoSelector = async () => {
   modoSelector.value = true;
   modoSelectorAccion.value = modoSelectorAccion.value;
-  msgModoSelector.value = 'Modo Selector Activado';
   statusModoSelector.value = 'success';
+  msgModoSelector.value = 'Modo Selector Activado';
+  
 
   const sendResponse = await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
     ACTIONS.SELECTOR_MODE_ENABLE);
 
-  await persistirConfig();
-  await cargarConfiguracion();
+  if(sendResponse) {
+    sectionVisible.value = "resultados";
+    await persistirConfig();
+    await cargarConfiguracion();
+  }
+  
+  modoSelector.value = false;
+  modoSelectorAccion.value = modoSelectorAccion.value;
+  statusModoSelector.value = 'error';
+  msgModoSelector.value = 'Modo Selector Desactivado';
 };
 
 const crearPerfil = async () => {
@@ -286,6 +297,7 @@ const importarJSON = (event) => {
       esEscaneado.value = true
       modoEscaneo.value = 'json'
       successJson.value = "✔️ JSON importado correctamente";
+      sectionVisible.value = 'resultados';
 
       await persistirConfig();
       await cargarConfiguracion();
@@ -320,6 +332,14 @@ const persistirConfig = async () => {
       }
     });
 } 
+
+const fnVerEscaneo = () => {
+  sectionVisible.value = "escaneo";
+};
+
+const fnVerResultados = () => {
+  sectionVisible.value = "resultados";
+};
 
 // Actualiza valores editables en tabla
 const actualizarValor = (input, event) => {
@@ -400,9 +420,17 @@ onUnmounted(() => {
   <!-- ===================== -->
 
   <section
-    v-if="!Object.keys(inputsAgrupados)?.length"
+    v-if="sectionVisible === 'escaneo'"
     class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3"
   >
+
+    <h2 class="text-[12px] font-semibold">
+      <span class="text-menu-item-active"
+        >Escaneo</span
+      >
+      >
+      <span class="text-secondary cursor-pointer" @click="fnVerResultados">Modo resultados</span>
+    </h2>
 
     <div class="flex items-center justify-between">
       <h2 class="text-sm font-semibold">
@@ -570,16 +598,23 @@ onUnmounted(() => {
   <!-- ===================== -->
 
   <section
-    v-if="Object.keys(inputsAgrupados)?.length"
+    v-if="sectionVisible === 'resultados'"
     class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto"
   >
 
     <!-- header -->
+    <h2 class="text-[12px] font-semibold">
+      <span class="text-secondary cursor-pointer" @click="fnVerEscaneo"
+        >Escaneo</span
+      >
+      >
+      <span class="text-menu-item-active">Modo resultados</span>
+    </h2>
 
     <div class="flex justify-between items-center">
 
       <h2 class="text-sm font-semibold">
-        Resultados ({{ inputsFiltrados?.length }})
+        Modo Resultados ({{ inputsFiltrados?.length }})
       </h2>
 
       <span class="text-[10px] bg-cyan-500 px-2 py-1 rounded-full font-semibold text-white">
@@ -588,232 +623,240 @@ onUnmounted(() => {
 
     </div>
 
-    <!-- ===================== -->
-    <!-- FILTROS -->
-    <!-- ===================== -->
+    <template v-if="Object.keys(inputsAgrupados)?.length" >
 
-    <div class="grid gap-1">
+      <!-- ===================== -->
+      <!-- FILTROS -->
+      <!-- ===================== -->
 
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Buscar por name o id..."
-        class="input w-full"
-      />
+      <SeccionDesplegable titulo="Acciones">
+        <template v-slot:contenido>
+          <div class="grid gap-1 mb-2">
 
-      <div class="flex gap-1 flex-wrap">
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Buscar por name o id..."
+              class="input w-full"
+            />
 
-        <button
-          v-for="tipo in tiposDisponibles"
-          :key="tipo"
-          @click="filtroTipo = tipo"
-          :class="[
-            'px-2 py-1 rounded-md border text-[10px] transition',
-            filtroTipo === tipo
-              ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-              : 'border-[var(--border)] text-[var(--text-secondary)]'
-          ]"
-        >
-          {{ tipo }}
-        </button>
+            <div class="flex gap-1 flex-wrap">
 
-      </div>
+              <button
+                v-for="tipo in tiposDisponibles"
+                :key="tipo"
+                @click="filtroTipo = tipo"
+                :class="[
+                  'px-2 py-1 rounded-md border text-[10px] transition',
+                  filtroTipo === tipo
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                    : 'border-[var(--border)] text-[var(--text-secondary)]'
+                ]"
+              >
+                {{ tipo }}
+              </button>
 
-    </div>
+            </div>
 
-    <!-- ===================== -->
-    <!-- ACCIONES -->
-    <!-- ===================== -->
+          </div>
+          
+          <!-- ===================== -->
+          <!-- ACCIONES -->
+          <!-- ===================== -->
 
-    <div class="space-y-2">
+          <div class="space-y-2">
 
-      <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2">
 
-        <button
-          @click="cambiarSelectedATodos(true)"
-          class="btn btn-outline-primary w-full"
-        >
-          Seleccionar
-        </button>
+              <button
+                @click="cambiarSelectedATodos(true)"
+                class="btn btn-outline-primary w-full"
+              >
+                Seleccionar
+              </button>
 
-        <button
-          @click="cambiarSelectedATodos(false)"
-          class="btn btn-outline-primary w-full"
-        >
-          Ninguno
-        </button>
+              <button
+                @click="cambiarSelectedATodos(false)"
+                class="btn btn-outline-primary w-full"
+              >
+                Ninguno
+              </button>
 
-        <button
-          @click="aplicarFakerFiller()"
-          class="btn btn-outline-primary w-full"
-        >
-          Faker
-        </button>
+              <button
+                @click="aplicarFakerFiller()"
+                class="btn btn-outline-primary w-full"
+              >
+                Faker
+              </button>
 
-        <button
-          @click="quitarValores()"
-          class="btn btn-outline-primary w-full"
-        >
-          Vaciar
-        </button>
+              <button
+                @click="quitarValores()"
+                class="btn btn-outline-primary w-full"
+              >
+                Vaciar
+              </button>
 
-        <button
-          @click="crearPerfil"
-          class="btn btn-outline-primary col-span-2 w-full"
-        >
-          Crear perfil
-        </button>
+              <button
+                @click="crearPerfil"
+                class="btn btn-outline-primary col-span-2 w-full"
+              >
+                Crear perfil
+              </button>
 
-      </div>
+            </div>
 
-    </div>
+          </div>
 
-    <!-- ===================== -->
-    <!-- INPUTS -->
-    <!-- ===================== -->
 
-    <div
-      v-for="(grupo, formName) in inputsAgrupados"
-      :key="formName"
-      class="max-h-[350px] overflow-y-auto space-y-1 space-y-3"
-    >
-
-      <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
-        {{ formName }}
-      </div>
+        </template>  
+      </SeccionDesplegable>
+      
+      <!-- ===================== -->
+      <!-- INPUTS -->
+      <!-- ===================== -->
 
       <div
-        v-for="i in grupo"
-        :key="i.id"
-        class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
-        :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''"
+        v-for="(grupo, formName) in inputsAgrupados"
+        :key="formName"
+        class="max-h-[350px] overflow-y-auto space-y-1 space-y-3"
       >
 
-        <!-- header -->
-
-        <div class="flex justify-between gap-2">
-
-          <div class="flex-1 min-w-0">
-
-            <div class="font-medium truncate">
-              {{ i.name || 'Sin nombre' }}
-            </div>
-
-            <div class="text-[10px] text-[var(--text-secondary)]">
-              {{ i.type }} • {{ i.id || 'sin-id' }}
-            </div>
-
-            <div class="text-[10px] truncate text-[var(--text-secondary)]">
-              id. {{ i.autofillId.slice(0,30) }}...
-            </div>
-
-          </div>
-
-          <div class="flex flex-col items-center gap-2">
-
-            <input
-              type="checkbox"
-              v-model="i.selected"
-              class="accent-[var(--primary)]"
-            />
-
-            <button
-              @click="rellenarInputAnimado(i)"
-              class="btn btn-outline-green text-[10px]"
-            >
-              Rellenar
-            </button>
-
-          </div>
-
+        <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+          {{ formName }}
         </div>
 
-        <!-- editor -->
+        <div
+          v-for="i in grupo"
+          :key="i.id"
+          class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
+          :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''"
+        >
 
-        <div>
+          <!-- header -->
 
-          <template v-if="i.type === 'checkbox'">
+          <div class="flex justify-between gap-2">
 
-            <label class="flex items-center gap-2">
+            <div class="flex-1 min-w-0">
+
+              <div class="font-medium truncate">
+                {{ i.name || 'Sin nombre' }}
+              </div>
+
+              <div class="text-[10px] text-[var(--text-secondary)]">
+                {{ i.type }} • {{ i.id || 'sin-id' }}
+              </div>
+
+              <div class="text-[10px] truncate text-[var(--text-secondary)]">
+                id. {{ i.autofillId.slice(0,30) }}...
+              </div>
+
+            </div>
+
+            <div class="flex flex-col items-center gap-2">
+
               <input
                 type="checkbox"
-                :checked="i.value"
-                @change="actualizarValor(i,$event)"
+                v-model="i.selected"
+                class="accent-[var(--primary)]"
               />
-              Activado
-            </label>
 
-          </template>
-
-          <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
-
-            <select
-              :multiple="i.type === 'select-multiple'"
-              @change="actualizarValor(i,$event)"
-              class="input text-xs w-full"
-            >
-
-              <option
-                v-for="opt in i.options"
-                :key="opt"
-                :value="opt"
-                :selected="i.type==='select-multiple'
-                  ? i.value.includes(opt)
-                  : i.value===opt"
+              <button
+                @click="rellenarInputAnimado(i)"
+                class="btn btn-outline-green text-[10px]"
               >
-                {{ opt }}
-              </option>
+                Rellenar
+              </button>
 
-            </select>
+            </div>
 
-          </template>
+          </div>
 
-          <template v-else>
+          <!-- editor -->
 
-            <input
-              type="text"
-              :value="i.value"
-              @input="actualizarValor(i,$event)"
-              class="input text-xs w-full"
-            />
+          <div>
 
-          </template>
+            <template v-if="i.type === 'checkbox'">
+
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  :checked="i.value"
+                  @change="actualizarValor(i,$event)"
+                />
+                Activado
+              </label>
+
+            </template>
+
+            <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
+
+              <select
+                :multiple="i.type === 'select-multiple'"
+                @change="actualizarValor(i,$event)"
+                class="input text-xs w-full"
+              >
+
+                <option
+                  v-for="opt in i.options"
+                  :key="opt"
+                  :value="opt"
+                  :selected="i.type==='select-multiple'
+                    ? i.value.includes(opt)
+                    : i.value===opt"
+                >
+                  {{ opt }}
+                </option>
+
+              </select>
+
+            </template>
+
+            <template v-else>
+
+              <input
+                type="text"
+                :value="i.value"
+                @input="actualizarValor(i,$event)"
+                class="input text-xs w-full"
+              />
+
+            </template>
+
+          </div>
 
         </div>
 
       </div>
 
-    </div>
+      <!-- ===================== -->
+      <!-- ZONA PELIGROSA -->
+      <!-- ===================== -->
 
-    <!-- ===================== -->
-    <!-- ZONA PELIGROSA -->
-    <!-- ===================== -->
+      <div class="grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-3">
 
-    <div class="grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-3">
+        <button
+          @click="eliminarTodoEscaneado"
+          class="btn btn-outline-red w-full"
+        >
+          Eliminar todos
+        </button>
 
-      <button
-        @click="eliminarTodoEscaneado"
-        class="btn btn-outline-red w-full"
-      >
-        Eliminar todos
-      </button>
+        <button
+          @click="rellenarTodos()"
+          class="btn btn-outline-primary w-full"
+        >
+          Rellenar
+        </button>
 
-      <button
-        @click="rellenarTodos()"
-        class="btn btn-outline-primary w-full"
-      >
-        Rellenar
-      </button>
+        <button
+          @click="exportarJSON()"
+          class="btn btn-outline-primary w-full"
+        >
+          Exportar JSON
+        </button>
 
-      <button
-        @click="exportarJSON()"
-        class="btn btn-outline-primary w-full"
-      >
-        Exportar JSON
-      </button>
-
-    </div>
-
+      </div>
+    </template>
   </section>
 
 </div>

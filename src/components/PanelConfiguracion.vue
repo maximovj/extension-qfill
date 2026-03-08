@@ -112,6 +112,8 @@ const obtenerInputs = async () => {
 
 const eliminarTodoEscaneado = async () => {
   inputs.value = [];
+  nombreArchivoJson.value = null;
+  successJson.value = null;
 
   await persistirConfig();
   await cargarConfiguracion();
@@ -277,6 +279,12 @@ const importarJSON = (event) => {
       if (!esValido) {
         throw new Error("El JSON no tiene la estructura correcta")
       }
+
+      // por ejemplo, reemplazar tus inputs actuales
+      inputs.value = data
+      esEscaneado.value = true
+      modoEscaneo.value = 'json'
+      successJson.value = "✔️ JSON importado correctamente";
 
       await persistirConfig();
       await cargarConfiguracion();

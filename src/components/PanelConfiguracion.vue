@@ -391,9 +391,9 @@ onUnmounted(() => {
 });
 </script>
 
-<!-- panel configuración v2.0  -->
+<!-- panel configuración v2.5  -->
 <template>
-<div class="space-y-4 text-xs max-w-[380px] mx-auto animate-slide-in">
+<div class="space-y-4 text-xs max-w-[520px] mx-auto animate-slide-in">
 
   <!-- ===================== -->
   <!-- ESCANEO -->
@@ -633,14 +633,14 @@ onUnmounted(() => {
           @click="cambiarSelectedATodos(true)"
           class="btn btn-outline-primary w-full"
         >
-          Seleccionar todos
+          Seleccionar
         </button>
 
         <button
           @click="cambiarSelectedATodos(false)"
           class="btn btn-outline-primary w-full"
         >
-          Deseleccionar
+          Ninguno
         </button>
 
         <button
@@ -651,24 +651,10 @@ onUnmounted(() => {
         </button>
 
         <button
-          @click="rellenarTodos()"
-          class="btn btn-outline-primary w-full"
-        >
-          Rellenar
-        </button>
-
-        <button
           @click="quitarValores()"
           class="btn btn-outline-primary w-full"
         >
           Vaciar
-        </button>
-
-        <button
-          @click="exportarJSON()"
-          class="btn btn-outline-primary w-full"
-        >
-          Exportar JSON
         </button>
 
         <button
@@ -689,7 +675,7 @@ onUnmounted(() => {
     <div
       v-for="(grupo, formName) in inputsAgrupados"
       :key="formName"
-      class="space-y-3"
+      class="max-h-[350px] overflow-y-auto space-y-1 space-y-3"
     >
 
       <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
@@ -803,13 +789,27 @@ onUnmounted(() => {
     <!-- ZONA PELIGROSA -->
     <!-- ===================== -->
 
-    <div class="border-t border-[var(--border)] pt-3">
+    <div class="grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-3">
 
       <button
         @click="eliminarTodoEscaneado"
         class="btn btn-outline-red w-full"
       >
         Eliminar todos
+      </button>
+
+      <button
+        @click="rellenarTodos()"
+        class="btn btn-outline-primary w-full"
+      >
+        Rellenar
+      </button>
+
+      <button
+        @click="exportarJSON()"
+        class="btn btn-outline-primary w-full"
+      >
+        Exportar JSON
       </button>
 
     </div>

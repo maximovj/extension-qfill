@@ -391,91 +391,139 @@ onUnmounted(() => {
 });
 </script>
 
-
+<!-- panel configuración v2.0  -->
 <template>
-  <div class="space-y-5 text-xs perspective-normal animate-slide-in">
-    
-    <!-- ===================== -->
-    <!-- 🟦 MÓDULO : ESCANEO -->
-    <!-- ===================== -->
-    <section v-if="!Object.keys(inputsAgrupados)?.length" class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-      
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-semibold">Escaneo</h2>
-        <span class="text-[10px] text-[var(--text-secondary)]">
-          {{ inputs?.length }} detectados
-        </span>
-      </div>
+<div class="space-y-4 text-xs max-w-[380px] mx-auto animate-slide-in">
 
-      <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-fit">
-        <button
-          @click="cambiarModoEscaneo('visibles')"
-          :class="modoEscaneo === 'visibles' ? activeSegment : segment"
-        >
-          Visibles
-        </button>
-        <button
-          @click="cambiarModoEscaneo('todos')"
-          :class="modoEscaneo === 'todos' ? activeSegment : segment"
-        >
-          Todos
-        </button>
-        <button
-          @click="cambiarModoEscaneo('selector')"
-          :class="modoEscaneo === 'selector' ? activeSegment : segment"
-        >
-          Modo Selector
-        </button>
-        <button
-          @click="cambiarModoEscaneo('json')"
-          :class="modoEscaneo === 'json' ? activeSegment : segment"
-        >
-          Importar JSON
-        </button>
-      </div>
+  <!-- ===================== -->
+  <!-- ESCANEO -->
+  <!-- ===================== -->
 
-      <div v-if="modoEscaneo === 'visibles'">
-        <p>Está opción solo buscará inputs visibles de la página actual</p>
-        <p class="my-2 text-red-400 font-medium" v-if="Object.keys(inputsAgrupados)?.length <= 0">No hay resultados, escanea la página</p>
-      </div>
+  <section
+    v-if="!Object.keys(inputsAgrupados)?.length"
+    class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3"
+  >
 
-      <div v-if="modoEscaneo === 'todos'">
-        <p>Está opción solo buscará todos los inputs de la página actual</p>
-        <p class="my-2 text-red-400 font-medium" v-if="Object.keys(inputsAgrupados)?.length <= 0">No hay resultados, escanea la página</p>
-      </div>
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold">
+        Escaneo
+      </h2>
 
-      <div v-if="modoEscaneo === 'selector'">
-        <p>Está opción permite seleccionar un elemento de la página actual</p>
+      <span class="text-[10px] text-[var(--text-secondary)]">
+        {{ inputs?.length }} detectados
+      </span>
+    </div>
 
-        <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-fit my-2">
+    <!-- modos -->
+
+    <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-full">
+
+      <button
+        @click="cambiarModoEscaneo('visibles')"
+        :class="['flex-1', modoEscaneo === 'visibles' ? activeSegment : segment]"
+      >
+        Visibles
+      </button>
+
+      <button
+        @click="cambiarModoEscaneo('todos')"
+        :class="['flex-1', modoEscaneo === 'todos' ? activeSegment : segment]"
+      >
+        Todos
+      </button>
+
+      <button
+        @click="cambiarModoEscaneo('selector')"
+        :class="['flex-1', modoEscaneo === 'selector' ? activeSegment : segment]"
+      >
+        Selector
+      </button>
+
+      <button
+        @click="cambiarModoEscaneo('json')"
+        :class="['flex-1', modoEscaneo === 'json' ? activeSegment : segment]"
+      >
+        JSON
+      </button>
+
+    </div>
+
+    <!-- contenido dinámico -->
+
+    <div class="text-[11px] text-[var(--text-secondary)]">
+
+      <p v-if="modoEscaneo === 'visibles'">
+        Escanea solo inputs visibles.
+      </p>
+
+      <p v-if="modoEscaneo === 'todos'">
+        Escanea todos los inputs de la página.
+      </p>
+
+      <div v-if="modoEscaneo === 'selector'" class="space-y-2">
+
+        <p>Selecciona manualmente elementos de la página.</p>
+
+        <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden">
+
           <button
             @click="cambiarModoSelectorAccion('agregar')"
-            :class="modoSelectorAccion === 'agregar' ? activeSegment : segment"
+            :class="['flex-1', modoSelectorAccion === 'agregar' ? activeSegment : segment]"
           >
             Agregar
           </button>
+
           <button
             @click="cambiarModoSelectorAccion('nuevo')"
-            :class="modoSelectorAccion === 'nuevo' ? activeSegment : segment"
+            :class="['flex-1', modoSelectorAccion === 'nuevo' ? activeSegment : segment]"
           >
             Nuevo
           </button>
+
           <button
             @click="cambiarModoSelectorAccion('escanear')"
-            :class="modoSelectorAccion === 'escanear' ? activeSegment : segment"
+            :class="['flex-1', modoSelectorAccion === 'escanear' ? activeSegment : segment]"
           >
             Escanear
           </button>
+
         </div>
 
-        <p class="my-2 text-green-400 font-medium" v-if="statusModoSelector === 'success'">{{ msgModoSelector }}</p>
-        <p class="my-2 text-red-400 font-medium" v-if="statusModoSelector === 'error'">{{ msgModoSelector }}</p>
+        <p
+          class="text-green-400 font-medium"
+          v-if="statusModoSelector === 'success'"
+        >
+          {{ msgModoSelector }}
+        </p>
+
+        <p
+          class="text-red-400 font-medium"
+          v-if="statusModoSelector === 'error'"
+        >
+          {{ msgModoSelector }}
+        </p>
+
       </div>
 
-      <div v-if="modoEscaneo === 'json'">
-        <p class="my-2">{{ nombreArchivoJson || 'Seleccione un archivo JSON' }}</p>
-        <p class="my-2 text-red-400 font-medium" v-if="errorJson">{{ errorJson }}</p>
-        <p class="my-2 text-green-400 font-medium" v-if="successJson">{{ successJson }}</p>
+      <div v-if="modoEscaneo === 'json'" class="space-y-2">
+
+        <p>
+          {{ nombreArchivoJson || 'Seleccione un archivo JSON' }}
+        </p>
+
+        <p
+          class="text-red-400 font-medium"
+          v-if="errorJson"
+        >
+          {{ errorJson }}
+        </p>
+
+        <p
+          class="text-green-400 font-medium"
+          v-if="successJson"
+        >
+          {{ successJson }}
+        </p>
 
         <input
           ref="fileJsonRef"
@@ -484,220 +532,290 @@ onUnmounted(() => {
           accept="application/json"
           hidden
         />
+
       </div>
 
-      <div class="grid grid-cols-1 gap-1">
-        <button @click="activarImportacion" v-if="modoEscaneo === 'json'" class="btn-primary w-full">
-          Importar Json
-        </button>
-        <button @click="activarModoSelector" v-else-if="modoEscaneo === 'selector'" class="btn-primary w-full">
-          Activar modo selector
-        </button>
-        <button @click="obtenerInputs" v-else class="btn-primary w-full">
-          Escanear página
-        </button>
-      </div>
+    </div>
 
-    </section>
+    <!-- botón principal -->
 
-    <!-- ===================== -->
-    <!-- 🟦 MÓDULO : RESULTADOS -->
-    <!-- ===================== -->
-    <section
-      v-if="Object.keys(inputsAgrupados)?.length"
-      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto"
+    <button
+      v-if="modoEscaneo === 'json'"
+      @click="activarImportacion"
+      class="btn-primary w-full"
     >
-      <div class="fixed right-13
-                    min-w-7 h-7 px-1 py-1
-                    bg-cyan-500
-                    rounded-full 
-                    flex items-center justify-center
-                    text-[10p] font-semibold animate-pulse">
-          <span>{{ totalSelecionados }}</span>
-      </div>
-      <div class="flex flex-col gap-2">
-        <div class="flex justify-between items-center">
-          <h2 class="text-sm font-semibold">
-            Resultados ({{ inputsFiltrados?.length }})
-          </h2>
-        </div>
+      Importar JSON
+    </button>
 
-        <SeccionDesplegable titulo="Filtros">
-          <template v-slot:contenido>
-            <h2 class="text-sm font-semibold">Filtros</h2>
+    <button
+      v-else-if="modoEscaneo === 'selector'"
+      @click="activarModoSelector"
+      class="btn-primary w-full"
+    >
+      Activar modo selector
+    </button>
+
+    <button
+      v-else
+      @click="obtenerInputs"
+      class="btn-primary w-full"
+    >
+      Escanear página
+    </button>
+
+  </section>
+
+  <!-- ===================== -->
+  <!-- RESULTADOS -->
+  <!-- ===================== -->
+
+  <section
+    v-if="Object.keys(inputsAgrupados)?.length"
+    class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto"
+  >
+
+    <!-- header -->
+
+    <div class="flex justify-between items-center">
+
+      <h2 class="text-sm font-semibold">
+        Resultados ({{ inputsFiltrados?.length }})
+      </h2>
+
+      <span class="text-[10px] bg-cyan-500 px-2 py-1 rounded-full font-semibold text-white">
+        {{ totalSelecionados }} seleccionados
+      </span>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- FILTROS -->
+    <!-- ===================== -->
+
+    <div class="grid gap-1">
+
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Buscar por name o id..."
+        class="input w-full"
+      />
+
+      <div class="flex gap-1 flex-wrap">
+
+        <button
+          v-for="tipo in tiposDisponibles"
+          :key="tipo"
+          @click="filtroTipo = tipo"
+          :class="[
+            'px-2 py-1 rounded-md border text-[10px] transition',
+            filtroTipo === tipo
+              ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+              : 'border-[var(--border)] text-[var(--text-secondary)]'
+          ]"
+        >
+          {{ tipo }}
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- ACCIONES -->
+    <!-- ===================== -->
+
+    <div class="space-y-2">
+
+      <div class="grid grid-cols-2 gap-2">
+
+        <button
+          @click="cambiarSelectedATodos(true)"
+          class="btn btn-outline-primary w-full"
+        >
+          Seleccionar todos
+        </button>
+
+        <button
+          @click="cambiarSelectedATodos(false)"
+          class="btn btn-outline-primary w-full"
+        >
+          Deseleccionar
+        </button>
+
+        <button
+          @click="aplicarFakerFiller()"
+          class="btn btn-outline-primary w-full"
+        >
+          Faker
+        </button>
+
+        <button
+          @click="rellenarTodos()"
+          class="btn btn-outline-primary w-full"
+        >
+          Rellenar
+        </button>
+
+        <button
+          @click="quitarValores()"
+          class="btn btn-outline-primary w-full"
+        >
+          Vaciar
+        </button>
+
+        <button
+          @click="exportarJSON()"
+          class="btn btn-outline-primary w-full"
+        >
+          Exportar JSON
+        </button>
+
+        <button
+          @click="crearPerfil"
+          class="btn btn-outline-primary col-span-2 w-full"
+        >
+          Crear perfil
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- INPUTS -->
+    <!-- ===================== -->
+
+    <div
+      v-for="(grupo, formName) in inputsAgrupados"
+      :key="formName"
+      class="space-y-3"
+    >
+
+      <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+        {{ formName }}
+      </div>
+
+      <div
+        v-for="i in grupo"
+        :key="i.id"
+        class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
+        :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''"
+      >
+
+        <!-- header -->
+
+        <div class="flex justify-between gap-2">
+
+          <div class="flex-1 min-w-0">
+
+            <div class="font-medium truncate">
+              {{ i.name || 'Sin nombre' }}
+            </div>
+
+            <div class="text-[10px] text-[var(--text-secondary)]">
+              {{ i.type }} • {{ i.id || 'sin-id' }}
+            </div>
+
+            <div class="text-[10px] truncate text-[var(--text-secondary)]">
+              id. {{ i.autofillId.slice(0,30) }}...
+            </div>
+
+          </div>
+
+          <div class="flex flex-col items-center gap-2">
 
             <input
-              v-model="search"
-              type="text"
-              placeholder="Buscar por name o id..."
-              class="input"
+              type="checkbox"
+              v-model="i.selected"
+              class="accent-[var(--primary)]"
             />
 
-            <div class="flex gap-2 flex-wrap mt-2">
-              <button
-                v-for="tipo in tiposDisponibles"
-                :key="tipo"
-                @click="filtroTipo = tipo"
-                :class="[
-                  'px-2 py-1 rounded-md border text-[10px] transition',
-                  filtroTipo === tipo
-                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-                    : 'border-[var(--border)] text-[var(--text-secondary)]'
-                ]"
-              >
-                {{ tipo }}
-              </button>
-            </div>
-          </template>
-        </SeccionDesplegable>
+            <button
+              @click="rellenarInputAnimado(i)"
+              class="btn btn-outline-green text-[10px]"
+            >
+              Rellenar
+            </button>
 
-        <!-- RESULTADOS | Acciones -->
-        <SeccionDesplegable titulo="Acciones">
-          <template v-slot:contenido>
-            <div class="grid grid-cols-2 gap-2 space-y-2">
-                <button
-                  @click="aplicarFakerFiller()"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Aplicar Faker Filler ({{ totalSelecionados }})
-                </button>
-                <div></div>
-                <button
-                  @click="cambiarSelectedATodos(true)"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Seleccionar todos
-                </button>
-                <button
-                  @click="cambiarSelectedATodos(false)"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Deseleccionar todos
-                </button>
-                <button
-                  @click="rellenarTodos()"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Rellenar seleccionados ({{ totalSelecionados }})
-                </button>
-                <button
-                  @click="quitarValores()"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Vaciar seleccionados ({{ totalSelecionados }})
-                </button>
-                <button
-                  @click="exportarJSON()"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Exportar a JSON ({{ totalSelecionados }})
-                </button>
-                <button
-                  @click="crearPerfil"
-                  class="btn btn-outline-primary w-[168px]"
-                >
-                  Crear perfil ({{ totalSelecionados }})
-                </button>
-            </div>
-          </template>
-        </SeccionDesplegable>
+          </div>
+
+        </div>
+
+        <!-- editor -->
 
         <div>
-          <button
-            @click="eliminarTodoEscaneado"
-            class="btn btn-outline-red w-[168px]"
-          >
-            Eliminar todos
-          </button>
-        </div>
-      </div>
-      
-      <div
-        v-for="(grupo, formName) in inputsAgrupados"
-        :key="formName"
-        class="space-y-3"
-      >
-        <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
-          {{ formName }}
-        </div>
 
-        <div
-          v-for="i in grupo"
-          :key="i.id"
-          class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition"
-          :class="animando === i.id ? 'ring-2 ring-green-500' : ''"
-        >
-          <div class="flex justify-between">
-            <div class="truncate w-full w-max-1/2 overflow-auto">
-              <div class="font-medium">
-                {{ i.name || 'Sin nombre' }}
-              </div>
-              <div class="text-[10px] text-[var(--text-secondary)]">
-                {{ i.type }} • {{ i.id || 'sin-id' }}
-              </div>
-              <div class="text-[10px] truncate max-w-[169px] text-[var(--text-secondary)]">
-                id. {{ i.autofillId.slice(0, 30) }}...
-              </div>
-            </div>
+          <template v-if="i.type === 'checkbox'">
 
-            <div class="flex flex-col gap-2">
-                <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
-                <button
-                  @click="rellenarInputAnimado(i)"
-                  class="btn btn-outline-green"
-                >
-                  Rellenar
-                </button>
-            </div>
-
-            
-          </div>
-
-          <!-- Editor dinámico -->
-          <div>
-            <template v-if="i.type === 'checkbox'">
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  :checked="i.value"
-                  @change="actualizarValor(i, $event)"
-                />
-                Activado
-              </label>
-            </template>
-
-            <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
-              <select
-                :multiple="i.type === 'select-multiple'"
-                @change="actualizarValor(i, $event)"
-                class="input text-xs"
-              >
-                <option
-                  v-for="opt in i.options"
-                  :key="opt"
-                  :value="opt"
-                  :selected="i.type==='select-multiple'
-                    ? i.value.includes(opt)
-                    : i.value===opt"
-                >
-                  {{ opt }}
-                </option>
-              </select>
-            </template>
-
-            <template v-else>
+            <label class="flex items-center gap-2">
               <input
-                type="text"
-                :value="i.value"
-                @input="actualizarValor(i, $event)"
-                class="input text-xs"
+                type="checkbox"
+                :checked="i.value"
+                @change="actualizarValor(i,$event)"
               />
-            </template>
-          </div>
+              Activado
+            </label>
+
+          </template>
+
+          <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
+
+            <select
+              :multiple="i.type === 'select-multiple'"
+              @change="actualizarValor(i,$event)"
+              class="input text-xs w-full"
+            >
+
+              <option
+                v-for="opt in i.options"
+                :key="opt"
+                :value="opt"
+                :selected="i.type==='select-multiple'
+                  ? i.value.includes(opt)
+                  : i.value===opt"
+              >
+                {{ opt }}
+              </option>
+
+            </select>
+
+          </template>
+
+          <template v-else>
+
+            <input
+              type="text"
+              :value="i.value"
+              @input="actualizarValor(i,$event)"
+              class="input text-xs w-full"
+            />
+
+          </template>
 
         </div>
-      </div>
-    </section>
 
-  </div>
+      </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- ZONA PELIGROSA -->
+    <!-- ===================== -->
+
+    <div class="border-t border-[var(--border)] pt-3">
+
+      <button
+        @click="eliminarTodoEscaneado"
+        class="btn btn-outline-red w-full"
+      >
+        Eliminar todos
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
 </template>
+

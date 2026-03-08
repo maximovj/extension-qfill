@@ -18,7 +18,7 @@
         <div class="flex flex-col">
             <div class="flex gap-3 items-center">
                 <button
-                    @click="mostrarPanelConfiguracion"
+                    @click="mostrarPanelEscaneo"
                     :class="[panel == 'configuracion' ? 'text-menu-item-active' : 'text-menu-item']"
                     :active="true"
                 >
@@ -43,20 +43,20 @@
         </div>
 
         <PanelPerfiles v-if="panel === 'perfiles'" />
-        <PanelConfiguracion v-if="panel === 'configuracion'" @perfil-nuevo-creado="mostrarPanelPerfiles" />
+        <PanelEscaneo v-if="panel === 'configuracion'" @perfil-nuevo-creado="mostrarPanelPerfiles" />
         <PanelHistorial v-if="panel === 'historial'" />
     </div>
 </template>
 
 <script>
 import extConfig from '@/extension.config.js'
-import PanelConfiguracion from '../components/PanelConfiguracion.vue';
-import PanelPerfiles from '../components/PanelPerfiles.vue';
-import PanelHistorial from '../components/PanelHistorial.vue';
+import PanelEscaneo from '../components/escaneo/PanelEscaneo.vue';
+import PanelPerfiles from '../components/perfiles/PanelPerfiles.vue';
+import PanelHistorial from '../components/historial/PanelHistorial.vue';
 
 export default {
     components: {
-        PanelConfiguracion,
+        PanelEscaneo,
         PanelPerfiles,
         PanelHistorial,
     },
@@ -67,7 +67,7 @@ export default {
         }
     },
     methods: {
-        mostrarPanelConfiguracion(){ 
+        mostrarPanelEscaneo(){ 
             this.panel = "configuracion";
         },
         mostrarPanelPerfiles(){ 

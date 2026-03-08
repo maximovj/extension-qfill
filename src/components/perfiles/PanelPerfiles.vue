@@ -2,11 +2,11 @@
 import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue";
 import { MESSAGE_TYPES, ACTIONS } from "@/constants.config.js";
 import { sendMessage } from "@/helpers.config.js";
-import generarFakeValue from '../sidepanel/utils/generarFakeValue';
-import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
-import db from "../indexedDBManager";
-import AlertaConfirmar from "./AlertaConfirmar.vue";
-import SeccionDesplegable from "./SeccionDesplegable.vue";
+import generarFakeValue from '../../sidepanel/utils/generarFakeValue';
+import generarPerfilFake from '../../sidepanel/utils/generarPerfilFake';
+import db from "../../indexedDBManager";
+import AlertaConfirmar from "../common/AlertaConfirmar.vue";
+import SeccionDesplegable from "../common/SeccionDesplegable.vue";
 
 // 
 let localState = ref(null);

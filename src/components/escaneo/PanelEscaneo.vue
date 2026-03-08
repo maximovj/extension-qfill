@@ -3,11 +3,11 @@ import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue"
 import extConfig from '@/extension.config.js'
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage, sendToBackground } from '@/helpers.config.js'
-import generarFakeValue from '../sidepanel/utils/generarFakeValue';
-import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
-import { sendToActiveTab } from "../helpers.config";
-import db from "../indexedDBManager";
-import SeccionDesplegable from "./SeccionDesplegable.vue";
+import generarFakeValue from '../../sidepanel/utils/generarFakeValue';
+import generarPerfilFake from '../../sidepanel/utils/generarPerfilFake';
+import { sendToActiveTab } from "../../helpers.config";
+import db from "../../indexedDBManager";
+import SeccionDesplegable from "../common/SeccionDesplegable.vue";
 
 // 
 let localState = ref(null);

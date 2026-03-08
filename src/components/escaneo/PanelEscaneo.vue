@@ -5,6 +5,10 @@ import SeccionModoResultados from "./SeccionModoResultados.vue";
 
 const sectionVisible = ref("resultados");
 const emit = defineEmits(["perfilNuevoCreado"]);
+
+const fnaNuevoPerfil = (value) => {
+  emit("perfilNuevoCreado", value);
+}
 </script>
 
 <!-- panel configuración v2.5  -->
@@ -18,6 +22,7 @@ const emit = defineEmits(["perfilNuevoCreado"]);
   <SeccionModoResultados 
     v-model:sectionVisible="sectionVisible"
     v-if="sectionVisible === 'resultados'"
+    @nuevoPerfil="fnaNuevoPerfil"
   />
 </div>
 </template>

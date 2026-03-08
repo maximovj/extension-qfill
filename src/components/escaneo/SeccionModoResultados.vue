@@ -11,7 +11,7 @@ const props = defineProps({
   sectionVisible: String,
 });
 
-const emit = defineEmits(["perfilNuevoCreado", "update:sectionVisible"]);
+const emit = defineEmits(["nuevoPerfil", "update:sectionVisible"]);
 
 // 
 let localState = ref(null);
@@ -139,7 +139,7 @@ const crearPerfil = async () => {
     }
   });
 
-  emit("perfilNuevoCreado", nuevoPerfil);
+  emit("nuevoPerfil", nuevoPerfil);
 }
 
 const cambiarSelectedATodos = async (x) => {

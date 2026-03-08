@@ -7,6 +7,7 @@ import generarFakeValue from '../sidepanel/utils/generarFakeValue';
 import generarPerfilFake from '../sidepanel/utils/generarPerfilFake';
 import { sendToActiveTab } from "../helpers.config";
 import db from "../indexedDBManager";
+import SeccionDesplegable from "./SeccionDesplegable.vue";
 
 // 
 let localState = ref(null);
@@ -393,13 +394,11 @@ onUnmounted(() => {
 
 <template>
   <div class="space-y-5 text-xs perspective-normal animate-slide-in">
-
-    <button @click="test">Test</button>
     
     <!-- ===================== -->
-    <!-- 🟦 MÓDULO 1: ESCANEO -->
+    <!-- 🟦 MÓDULO : ESCANEO -->
     <!-- ===================== -->
-    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+    <section v-if="!Object.keys(inputsAgrupados)?.length" class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
       
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold">Escaneo</h2>
@@ -501,47 +500,12 @@ onUnmounted(() => {
 
     </section>
 
-
     <!-- ===================== -->
-    <!-- 🟦 MÓDULO 2: FILTROS -->
-    <!-- ===================== -->
-    <section 
-      v-if="Object.keys(inputsAgrupados)?.length"
-      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-      
-      <h2 class="text-sm font-semibold">Filtros</h2>
-
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Buscar por name o id..."
-        class="input"
-      />
-
-      <div class="flex gap-2 flex-wrap mt-2">
-        <button
-          v-for="tipo in tiposDisponibles"
-          :key="tipo"
-          @click="filtroTipo = tipo"
-          :class="[
-            'px-2 py-1 rounded-md border text-[10px] transition',
-            filtroTipo === tipo
-              ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-              : 'border-[var(--border)] text-[var(--text-secondary)]'
-          ]"
-        >
-          {{ tipo }}
-        </button>
-      </div>
-    </section>
-
-
-    <!-- ===================== -->
-    <!-- 🟦 MÓDULO 3: RESULTADOS -->
+    <!-- 🟦 MÓDULO : RESULTADOS -->
     <!-- ===================== -->
     <section
       v-if="Object.keys(inputsAgrupados)?.length"
-      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[320px] overflow-y-auto"
+      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto"
     >
       <div class="fixed right-13
                     min-w-7 h-7 px-1 py-1
@@ -551,79 +515,100 @@ onUnmounted(() => {
                     text-[10p] font-semibold animate-pulse">
           <span>{{ totalSelecionados }}</span>
       </div>
-      <div class="flex flex-col">
+      <div class="flex flex-col gap-2">
         <div class="flex justify-between items-center">
           <h2 class="text-sm font-semibold">
             Resultados ({{ inputsFiltrados?.length }})
           </h2>
         </div>
 
-        <!-- MÓDULO 3: RESULTADOS | Acciones -->
-        <div class="grid grid-cols-2 my-2 space-y-2">
-          <div>
-            <button
-              @click="eliminarTodoEscaneado"
-              class="btn btn-outline-red w-[164px]"
-            >
-              Eliminar todos
-            </button>
-          </div>
-          <div>
-            <button
-              @click="aplicarFakerFiller()"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Aplicar Faker Filler ({{ totalSelecionados }})
-            </button>
-          </div>
-          <div>
-            <button
-              @click="cambiarSelectedATodos(true)"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Seleccionar todos
-            </button>
-          </div>
-          <div>
-            <button
-              @click="cambiarSelectedATodos(false)"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Deseleccionar todos
-            </button>
-          </div>
-          <div>
-            <button
-              @click="rellenarTodos()"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Rellenar seleccionados ({{ totalSelecionados }})
-            </button>
-          </div>
-          <div>
-            <button
-              @click="quitarValores()"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Vaciar seleccionados ({{ totalSelecionados }})
-            </button>
-          </div>
-          <div>
-            <button
-              @click="exportarJSON()"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Exportar a JSON ({{ totalSelecionados }})
-            </button>
-          </div>
-          <div>
-            <button
-              @click="crearPerfil"
-              class="btn btn-outline-primary w-[164px]"
-            >
-              Crear perfil ({{ totalSelecionados }})
-            </button>
-          </div>
+        <SeccionDesplegable titulo="Filtros">
+          <template v-slot:contenido>
+            <h2 class="text-sm font-semibold">Filtros</h2>
+
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Buscar por name o id..."
+              class="input"
+            />
+
+            <div class="flex gap-2 flex-wrap mt-2">
+              <button
+                v-for="tipo in tiposDisponibles"
+                :key="tipo"
+                @click="filtroTipo = tipo"
+                :class="[
+                  'px-2 py-1 rounded-md border text-[10px] transition',
+                  filtroTipo === tipo
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                    : 'border-[var(--border)] text-[var(--text-secondary)]'
+                ]"
+              >
+                {{ tipo }}
+              </button>
+            </div>
+          </template>
+        </SeccionDesplegable>
+
+        <!-- RESULTADOS | Acciones -->
+        <SeccionDesplegable titulo="Acciones">
+          <template v-slot:contenido>
+            <div class="grid grid-cols-2 gap-2 space-y-2">
+                <button
+                  @click="aplicarFakerFiller()"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Aplicar Faker Filler ({{ totalSelecionados }})
+                </button>
+                <div></div>
+                <button
+                  @click="cambiarSelectedATodos(true)"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Seleccionar todos
+                </button>
+                <button
+                  @click="cambiarSelectedATodos(false)"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Deseleccionar todos
+                </button>
+                <button
+                  @click="rellenarTodos()"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Rellenar seleccionados ({{ totalSelecionados }})
+                </button>
+                <button
+                  @click="quitarValores()"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Vaciar seleccionados ({{ totalSelecionados }})
+                </button>
+                <button
+                  @click="exportarJSON()"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Exportar a JSON ({{ totalSelecionados }})
+                </button>
+                <button
+                  @click="crearPerfil"
+                  class="btn btn-outline-primary w-[168px]"
+                >
+                  Crear perfil ({{ totalSelecionados }})
+                </button>
+            </div>
+          </template>
+        </SeccionDesplegable>
+
+        <div>
+          <button
+            @click="eliminarTodoEscaneado"
+            class="btn btn-outline-red w-[168px]"
+          >
+            Eliminar todos
+          </button>
         </div>
       </div>
       

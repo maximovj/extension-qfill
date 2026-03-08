@@ -43,11 +43,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
         case ACTIONS.SELECTOR_MODE_ENABLE: {
             selectElementEnable();
+            sendResponse({ status: 'ok' });
             break;
         }
         case ACTIONS.SELECTOR_MODE_SET_ITEM: {
             selectElementItem = msg.payload.data;
             console.log("selectElementItem: ", selectElementItem);
+            sendResponse({ status: 'ok' });
             break;
         }
         case ACTIONS.SELECTOR_MODE_GET_ITEM: {

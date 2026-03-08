@@ -255,202 +255,204 @@ onUnmounted(() => {
 
 <!-- panel configuración v2.5  -->
 <template>
-  <section
-    class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto">
+  <div class="perspective-normal animate-slide-in">
+    <section
+      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto">
 
-    <!-- header -->
-    <h2 class="text-[12px] font-semibold">
-      <span class="text-secondary cursor-pointer" @click="fnVerEscaneo">Escaneo</span>
-      >
-      <span class="text-menu-item-active">Modo resultados</span>
-    </h2>
-
-    <div class="flex justify-between items-center">
-
-      <h2 class="text-sm font-semibold">
-        Modo Resultados ({{ inputsFiltrados?.length }})
+      <!-- header -->
+      <h2 class="text-[12px] font-semibold">
+        <span class="text-secondary cursor-pointer" @click="fnVerEscaneo">Escaneo</span>
+        >
+        <span class="text-menu-item-active">Modo resultados</span>
       </h2>
 
-      <span class="text-[10px] bg-cyan-500 px-2 py-1 rounded-full font-semibold text-white">
-        {{ totalSelecionados }} seleccionados
-      </span>
+      <div class="flex justify-between items-center">
 
-    </div>
+        <h2 class="text-sm font-semibold">
+          Modo Resultados ({{ inputsFiltrados?.length }})
+        </h2>
 
-    <p v-if="Object.keys(inputsAgrupados)?.length <= 0">
-      No hay elementos escaneados. 
-      Escanea la página en <span class="font-medium cursor-pointer underline" @click="fnVerEscaneo">Escaneo</span> 
-    </p>
-
-    <template v-if="Object.keys(inputsAgrupados)?.length">
-
-      <!-- ===================== -->
-      <!-- FILTROS -->
-      <!-- ===================== -->
-
-      <SeccionDesplegable titulo="Acciones">
-        <template v-slot:contenido>
-          <div class="grid gap-1 mb-2">
-
-            <input v-model="search" type="text" placeholder="Buscar por name o id..." class="input w-full" />
-
-            <div class="flex gap-1 flex-wrap">
-
-              <button v-for="tipo in tiposDisponibles" :key="tipo" @click="filtroTipo = tipo" :class="[
-                'px-2 py-1 rounded-md border text-[10px] transition',
-                filtroTipo === tipo
-                  ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-                  : 'border-[var(--border)] text-[var(--text-secondary)]'
-              ]">
-                {{ tipo }}
-              </button>
-
-            </div>
-
-          </div>
-
-          <!-- ===================== -->
-          <!-- ACCIONES -->
-          <!-- ===================== -->
-
-          <div class="space-y-2">
-
-            <div class="grid grid-cols-2 gap-2">
-
-              <button @click="cambiarSelectedATodos(true)" class="btn btn-outline-primary w-full">
-                Seleccionar
-              </button>
-
-              <button @click="cambiarSelectedATodos(false)" class="btn btn-outline-primary w-full">
-                Ninguno
-              </button>
-
-              <button @click="aplicarFakerFiller()" class="btn btn-outline-primary w-full">
-                Faker
-              </button>
-
-              <button @click="quitarValores()" class="btn btn-outline-primary w-full">
-                Vaciar
-              </button>
-
-              <button @click="crearPerfil" class="btn btn-outline-primary col-span-2 w-full">
-                Crear perfil
-              </button>
-
-            </div>
-
-          </div>
-
-
-        </template>
-      </SeccionDesplegable>
-
-      <!-- ===================== -->
-      <!-- INPUTS -->
-      <!-- ===================== -->
-
-      <div v-for="(grupo, formName) in inputsAgrupados" :key="formName"
-        class="max-h-[350px] overflow-y-auto space-y-1 space-y-3">
-
-        <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
-          {{ formName }}
-        </div>
-
-        <div v-for="i in grupo" :key="i.id"
-          class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
-          :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''">
-
-          <!-- header -->
-
-          <div class="flex justify-between gap-2">
-
-            <div class="flex-1 min-w-0">
-
-              <div class="font-medium truncate">
-                {{ i.name || 'Sin nombre' }}
-              </div>
-
-              <div class="text-[10px] text-[var(--text-secondary)]">
-                {{ i.type }} • {{ i.id || 'sin-id' }}
-              </div>
-
-              <div class="text-[10px] truncate text-[var(--text-secondary)]">
-                id. {{ i.autofillId.slice(0, 30) }}...
-              </div>
-
-            </div>
-
-            <div class="flex flex-col items-center gap-2">
-
-              <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
-
-              <button @click="rellenarInputAnimado(i)" class="btn btn-outline-green text-[10px]">
-                Rellenar
-              </button>
-
-            </div>
-
-          </div>
-
-          <!-- editor -->
-
-          <div>
-
-            <template v-if="i.type === 'checkbox'">
-
-              <label class="flex items-center gap-2">
-                <input type="checkbox" :checked="i.value" @change="actualizarValor(i, $event)" />
-                Activado
-              </label>
-
-            </template>
-
-            <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
-
-              <select :multiple="i.type === 'select-multiple'" @change="actualizarValor(i, $event)"
-                class="input text-xs w-full">
-
-                <option v-for="opt in i.options" :key="opt" :value="opt" :selected="i.type === 'select-multiple'
-                  ? i.value.includes(opt)
-                  : i.value === opt">
-                  {{ opt }}
-                </option>
-
-              </select>
-
-            </template>
-
-            <template v-else>
-
-              <input type="text" :value="i.value" @input="actualizarValor(i, $event)" class="input text-xs w-full" />
-
-            </template>
-
-          </div>
-
-        </div>
+        <span class="text-[10px] bg-cyan-500 px-2 py-1 rounded-full font-semibold text-white">
+          {{ totalSelecionados }} seleccionados
+        </span>
 
       </div>
 
-      <!-- ===================== -->
-      <!-- ZONA PELIGROSA -->
-      <!-- ===================== -->
+      <p v-if="Object.keys(inputsAgrupados)?.length <= 0">
+        No hay elementos escaneados.
+        Escanea la página en <span class="font-medium cursor-pointer underline" @click="fnVerEscaneo">Escaneo</span>
+      </p>
 
-      <div class="grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-3">
+      <template v-if="Object.keys(inputsAgrupados)?.length">
 
-        <button @click="eliminarTodoEscaneado" class="btn btn-outline-red w-full">
-          Eliminar todos
-        </button>
+        <!-- ===================== -->
+        <!-- FILTROS -->
+        <!-- ===================== -->
 
-        <button @click="rellenarTodos()" class="btn btn-outline-primary w-full">
-          Rellenar
-        </button>
+        <SeccionDesplegable titulo="Acciones">
+          <template v-slot:contenido>
+            <div class="grid gap-1 mb-2">
 
-        <button @click="exportarJSON()" class="btn btn-outline-primary w-full">
-          Exportar JSON
-        </button>
+              <input v-model="search" type="text" placeholder="Buscar por name o id..." class="input w-full" />
 
-      </div>
-    </template>
-  </section>
+              <div class="flex gap-1 flex-wrap">
+
+                <button v-for="tipo in tiposDisponibles" :key="tipo" @click="filtroTipo = tipo" :class="[
+                  'px-2 py-1 rounded-md border text-[10px] transition',
+                  filtroTipo === tipo
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                    : 'border-[var(--border)] text-[var(--text-secondary)]'
+                ]">
+                  {{ tipo }}
+                </button>
+
+              </div>
+
+            </div>
+
+            <!-- ===================== -->
+            <!-- ACCIONES -->
+            <!-- ===================== -->
+
+            <div class="space-y-2">
+
+              <div class="grid grid-cols-2 gap-2">
+
+                <button @click="cambiarSelectedATodos(true)" class="btn btn-outline-primary w-full">
+                  Seleccionar
+                </button>
+
+                <button @click="cambiarSelectedATodos(false)" class="btn btn-outline-primary w-full">
+                  Ninguno
+                </button>
+
+                <button @click="aplicarFakerFiller()" class="btn btn-outline-primary w-full">
+                  Faker
+                </button>
+
+                <button @click="quitarValores()" class="btn btn-outline-primary w-full">
+                  Vaciar
+                </button>
+
+                <button @click="crearPerfil" class="btn btn-outline-primary col-span-2 w-full">
+                  Crear perfil
+                </button>
+
+              </div>
+
+            </div>
+
+
+          </template>
+        </SeccionDesplegable>
+
+        <!-- ===================== -->
+        <!-- INPUTS -->
+        <!-- ===================== -->
+
+        <div v-for="(grupo, formName) in inputsAgrupados" :key="formName"
+          class="max-h-[350px] overflow-y-auto space-y-1 space-y-3">
+
+          <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+            {{ formName }}
+          </div>
+
+          <div v-for="i in grupo" :key="i.id"
+            class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
+            :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''">
+
+            <!-- header -->
+
+            <div class="flex justify-between gap-2">
+
+              <div class="flex-1 min-w-0">
+
+                <div class="font-medium truncate">
+                  {{ i.name || 'Sin nombre' }}
+                </div>
+
+                <div class="text-[10px] text-[var(--text-secondary)]">
+                  {{ i.type }} • {{ i.id || 'sin-id' }}
+                </div>
+
+                <div class="text-[10px] truncate text-[var(--text-secondary)]">
+                  id. {{ i.autofillId.slice(0, 30) }}...
+                </div>
+
+              </div>
+
+              <div class="flex flex-col items-center gap-2">
+
+                <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
+
+                <button @click="rellenarInputAnimado(i)" class="btn btn-outline-green text-[10px]">
+                  Rellenar
+                </button>
+
+              </div>
+
+            </div>
+
+            <!-- editor -->
+
+            <div>
+
+              <template v-if="i.type === 'checkbox'">
+
+                <label class="flex items-center gap-2">
+                  <input type="checkbox" :checked="i.value" @change="actualizarValor(i, $event)" />
+                  Activado
+                </label>
+
+              </template>
+
+              <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
+
+                <select :multiple="i.type === 'select-multiple'" @change="actualizarValor(i, $event)"
+                  class="input text-xs w-full">
+
+                  <option v-for="opt in i.options" :key="opt" :value="opt" :selected="i.type === 'select-multiple'
+                    ? i.value.includes(opt)
+                    : i.value === opt">
+                    {{ opt }}
+                  </option>
+
+                </select>
+
+              </template>
+
+              <template v-else>
+
+                <input type="text" :value="i.value" @input="actualizarValor(i, $event)" class="input text-xs w-full" />
+
+              </template>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ===================== -->
+        <!-- ZONA PELIGROSA -->
+        <!-- ===================== -->
+
+        <div class="grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-3">
+
+          <button @click="eliminarTodoEscaneado" class="btn btn-outline-red w-full">
+            Eliminar todos
+          </button>
+
+          <button @click="rellenarTodos()" class="btn btn-outline-primary w-full">
+            Rellenar
+          </button>
+
+          <button @click="exportarJSON()" class="btn btn-outline-primary w-full">
+            Exportar JSON
+          </button>
+
+        </div>
+      </template>
+    </section>
+  </div>
 </template>

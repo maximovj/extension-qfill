@@ -89,9 +89,9 @@ onUnmounted(() => {
       ></SeccionLista>
     
     <SeccionModoEdicion 
-    v-if="modoEdicion"
-    :elemento="modoEdicionElemento"
-    @volver="volver"
-    ></SeccionModoEdicion>
+      v-if="modoEdicion"
+      :elemento="modoEdicionElemento"
+      @volver="volver"
+      ></SeccionModoEdicion>
   </div>
 </template>

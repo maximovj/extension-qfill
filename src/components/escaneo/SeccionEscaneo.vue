@@ -252,126 +252,128 @@ onUnmounted(() => {
 
 <!-- panel configuración v2.5  -->
 <template>
-  <!-- ===================== -->
-  <!-- ESCANEO -->
-  <!-- ===================== -->
+  <div class="perspective-normal animate-slide-in">
+    <!-- ===================== -->
+    <!-- ESCANEO -->
+    <!-- ===================== -->
 
-  <section
-    class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-    <h2 class="text-[12px] font-semibold">
-      <span class="text-menu-item-active">Escaneo</span>
-      >
-      <span class="text-secondary cursor-pointer" @click="fnVerResultados">Modo resultados</span>
-    </h2>
+    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+      <h2 class="text-[12px] font-semibold">
+        <span class="text-menu-item-active">Escaneo</span>
+        >
+        <span class="text-secondary cursor-pointer" @click="fnVerResultados">Modo resultados</span>
+      </h2>
 
-    <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold">Escaneo</h2>
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Escaneo</h2>
 
-      <span class="text-[10px] text-[var(--text-secondary)]">
-        {{ inputs?.length }} detectados
-      </span>
-    </div>
+        <span class="text-[10px] text-[var(--text-secondary)]">
+          {{ inputs?.length }} detectados
+        </span>
+      </div>
 
-    <!-- modos -->
+      <!-- modos -->
 
-    <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-full">
-      <button @click="cambiarModoEscaneo('visibles')" :class="[
-        'flex-1',
-        modoEscaneo === 'visibles' ? activeSegment : segment,
-      ]">
-        Visibles
-      </button>
+      <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-full">
+        <button @click="cambiarModoEscaneo('visibles')" :class="[
+          'flex-1',
+          modoEscaneo === 'visibles' ? activeSegment : segment,
+        ]">
+          Visibles
+        </button>
 
-      <button @click="cambiarModoEscaneo('todos')"
-        :class="['flex-1', modoEscaneo === 'todos' ? activeSegment : segment]">
-        Todos
-      </button>
+        <button @click="cambiarModoEscaneo('todos')"
+          :class="['flex-1', modoEscaneo === 'todos' ? activeSegment : segment]">
+          Todos
+        </button>
 
-      <button @click="cambiarModoEscaneo('selector')" :class="[
-        'flex-1',
-        modoEscaneo === 'selector' ? activeSegment : segment,
-      ]">
-        Selector
-      </button>
+        <button @click="cambiarModoEscaneo('selector')" :class="[
+          'flex-1',
+          modoEscaneo === 'selector' ? activeSegment : segment,
+        ]">
+          Selector
+        </button>
 
-      <button @click="cambiarModoEscaneo('json')" :class="['flex-1', modoEscaneo === 'json' ? activeSegment : segment]">
-        JSON
-      </button>
-    </div>
+        <button @click="cambiarModoEscaneo('json')"
+          :class="['flex-1', modoEscaneo === 'json' ? activeSegment : segment]">
+          JSON
+        </button>
+      </div>
 
-    <!-- contenido dinámico -->
+      <!-- contenido dinámico -->
 
-    <div class="text-[11px] text-[var(--text-secondary)]">
-      <p v-if="modoEscaneo === 'visibles'">Escanea solo inputs visibles.</p>
+      <div class="text-[11px] text-[var(--text-secondary)]">
+        <p v-if="modoEscaneo === 'visibles'">Escanea solo inputs visibles.</p>
 
-      <p v-if="modoEscaneo === 'todos'">
-        Escanea todos los inputs de la página.
-      </p>
+        <p v-if="modoEscaneo === 'todos'">
+          Escanea todos los inputs de la página.
+        </p>
 
-      <div v-if="modoEscaneo === 'selector'" class="space-y-2">
-        <p>Selecciona manualmente elementos de la página.</p>
+        <div v-if="modoEscaneo === 'selector'" class="space-y-2">
+          <p>Selecciona manualmente elementos de la página.</p>
 
-        <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden">
-          <button @click="cambiarModoSelectorAccion('agregar')" :class="[
-            'flex-1',
-            modoSelectorAccion === 'agregar' ? activeSegment : segment,
-          ]">
-            Agregar
-          </button>
+          <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden">
+            <button @click="cambiarModoSelectorAccion('agregar')" :class="[
+              'flex-1',
+              modoSelectorAccion === 'agregar' ? activeSegment : segment,
+            ]">
+              Agregar
+            </button>
 
-          <button @click="cambiarModoSelectorAccion('nuevo')" :class="[
-            'flex-1',
-            modoSelectorAccion === 'nuevo' ? activeSegment : segment,
-          ]">
-            Nuevo
-          </button>
+            <button @click="cambiarModoSelectorAccion('nuevo')" :class="[
+              'flex-1',
+              modoSelectorAccion === 'nuevo' ? activeSegment : segment,
+            ]">
+              Nuevo
+            </button>
 
-          <button @click="cambiarModoSelectorAccion('escanear')" :class="[
-            'flex-1',
-            modoSelectorAccion === 'escanear' ? activeSegment : segment,
-          ]">
-            Escanear
-          </button>
+            <button @click="cambiarModoSelectorAccion('escanear')" :class="[
+              'flex-1',
+              modoSelectorAccion === 'escanear' ? activeSegment : segment,
+            ]">
+              Escanear
+            </button>
+          </div>
+
+          <p class="text-green-400 font-medium" v-if="statusModoSelector === 'success'">
+            {{ msgModoSelector }}
+          </p>
+
+          <p class="text-red-400 font-medium" v-if="statusModoSelector === 'error'">
+            {{ msgModoSelector }}
+          </p>
         </div>
 
-        <p class="text-green-400 font-medium" v-if="statusModoSelector === 'success'">
-          {{ msgModoSelector }}
-        </p>
+        <div v-if="modoEscaneo === 'json'" class="space-y-2">
+          <p>
+            {{ nombreArchivoJson || "Seleccione un archivo JSON" }}
+          </p>
 
-        <p class="text-red-400 font-medium" v-if="statusModoSelector === 'error'">
-          {{ msgModoSelector }}
-        </p>
+          <p class="text-red-400 font-medium" v-if="errorJson">
+            {{ errorJson }}
+          </p>
+
+          <p class="text-green-400 font-medium" v-if="successJson">
+            {{ successJson }}
+          </p>
+
+          <input ref="fileJsonRef" @change="importarJSON" type="file" accept="application/json" hidden />
+        </div>
       </div>
 
-      <div v-if="modoEscaneo === 'json'" class="space-y-2">
-        <p>
-          {{ nombreArchivoJson || "Seleccione un archivo JSON" }}
-        </p>
+      <!-- botón principal -->
 
-        <p class="text-red-400 font-medium" v-if="errorJson">
-          {{ errorJson }}
-        </p>
+      <button v-if="modoEscaneo === 'json'" @click="activarImportacion" class="btn-primary w-full">
+        Importar JSON
+      </button>
 
-        <p class="text-green-400 font-medium" v-if="successJson">
-          {{ successJson }}
-        </p>
+      <button v-else-if="modoEscaneo === 'selector'" @click="activarModoSelector" class="btn-primary w-full">
+        Activar modo selector
+      </button>
 
-        <input ref="fileJsonRef" @change="importarJSON" type="file" accept="application/json" hidden />
-      </div>
-    </div>
-
-    <!-- botón principal -->
-
-    <button v-if="modoEscaneo === 'json'" @click="activarImportacion" class="btn-primary w-full">
-      Importar JSON
-    </button>
-
-    <button v-else-if="modoEscaneo === 'selector'" @click="activarModoSelector" class="btn-primary w-full">
-      Activar modo selector
-    </button>
-
-    <button v-else @click="obtenerInputs" class="btn-primary w-full">
-      Escanear página
-    </button>
-  </section>
+      <button v-else @click="obtenerInputs" class="btn-primary w-full">
+        Escanear página
+      </button>
+    </section>
+  </div>
 </template>

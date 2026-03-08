@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue";
 import AlertaConfirmar from "../common/AlertaConfirmar.vue";
 
 // ### !! Props y Emits
-const props = defineProps({ });
+const props = defineProps({});
 const emit = defineEmits(["editarElemento"]);
 
 // ### !! Ref
@@ -76,6 +76,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <div class="perspective-normal animate-slide-in">
     <AlertaConfirmar :titulo="modalTitulo" :mensaje="modalMensaje" ref="alertaConfirmarRef" />
 
     <!-- ===================== -->
@@ -132,4 +133,5 @@ onUnmounted(() => {
         </div>
       </div>
     </section>
+  </div>
 </template>

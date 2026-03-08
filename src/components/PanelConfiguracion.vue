@@ -117,6 +117,7 @@ const eliminarTodoEscaneado = async () => {
   inputs.value = [];
   nombreArchivoJson.value = null;
   successJson.value = null;
+  sectionVisible.value = "escaneo";
 
   await persistirConfig();
   await cargarConfiguracion();

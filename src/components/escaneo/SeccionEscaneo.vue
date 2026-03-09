@@ -69,7 +69,10 @@ const activarModoSelector = async () => {
 
   const sendResponse = await sendMessage(
     MESSAGE_TYPES.UI_EVENT,
-    ACTIONS.SELECTOR_MODE_ENABLE
+    ACTIONS.SELECTOR_MODE_ENABLE,
+    {
+      accion: modoSelectorAccion.value,
+    }
   );
 
   if (sendResponse) {

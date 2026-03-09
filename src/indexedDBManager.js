@@ -160,14 +160,14 @@ class IndexedDBManager {
     ========================================================= */
     subscribe(listener) {
         this.listeners.add(listener);
-        console.log("subscribe:",listener,"se ha susbstrito a", this.listeners);
+        // !! console.log("subscribe:",listener,"se ha susbstrito a", this.listeners);
         return () => this.listeners.delete(listener);
     }
 
     notify(path, value) {
-        console.log("He recibido la notificación, procesado a ejecutar los subscriptos:", this.listeners);
+        // !! console.log("He recibido la notificación, procesado a ejecutar los subscriptos:", this.listeners);
         this.listeners.forEach(listener => {
-            console.log("Se ejecuta subscribe:", listener, "con path", {state: this.state, path, value});
+            // !! console.log("Se ejecuta subscribe:", listener, "con path", {state: this.state, path, value});
             listener(this.state, path, value);
         });
     }
@@ -252,7 +252,7 @@ class IndexedDBManager {
     ========================================================= */
     async saveSingle(storeName, data) {
         const storeConfig = this.STORES[storeName];
-        console.log("saveSingle", {storeName, data, storeConfig});
+        // !! console.log("saveSingle", {storeName, data, storeConfig});
         if (!storeConfig || storeConfig.type !== "single") {
             throw new Error(`Store ${storeName} no es tipo single`);
         }
@@ -270,7 +270,7 @@ class IndexedDBManager {
         store.put(payload);
 
         this.state[storeName] = payload;
-        console.log("this.state[storeName]", this.state[storeName]);
+        // !! console.log("this.state[storeName]", this.state[storeName]);
 
         this.notify(storeName, payload);
 
@@ -332,7 +332,7 @@ class IndexedDBManager {
     // uso:
     /*
     DB.watch("configuracion.modo", (value) => {
-            console.log("modo cambio:", value);
+            // !! console.log("modo cambio:", value);
     });
     */
     watch(path, callback) {
@@ -440,7 +440,7 @@ class IndexedDBManager {
     async getIdInfo(storeName) {
         const storeConfig = this.STORES[storeName];
         const data = await this.getAll(storeConfig?.name);
-        console.log(" async getIdInfo(storeName) ", data);
+        // !! console.log(" async getIdInfo(storeName) ", data);
 
         if (!Array.isArray(data) || data.length === 0) {
             return {

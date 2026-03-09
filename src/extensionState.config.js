@@ -155,13 +155,13 @@ class ExtensionState {
     // Desarrollo y testing
     async debugEstado() {
         chrome.storage.local.get('extensionState', (result) => {
-            console.log('📦 DATOS GUARDADOS EN STORAGE:');
-            console.log(JSON.stringify(result, null, 2));
+            // !! console.log('📦 DATOS GUARDADOS EN STORAGE:');
+            // !! console.log(JSON.stringify(result, null, 2));
         });
         
         // También puedes ver el estado en memoria
-        console.log('🔄 ESTADO EN MEMORIA:');
-        console.log(JSON.stringify(this.state, null, 2));
+        // !! console.log('🔄 ESTADO EN MEMORIA:');
+        // !! console.log(JSON.stringify(this.state, null, 2));
     }
 
 }

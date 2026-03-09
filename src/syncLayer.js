@@ -9,7 +9,7 @@ class SyncLayerV2 {
 
     // 🔥 Escuchar acciones externas (dispatch)
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      console.log("SyncLayerV2::init", {message, sender, sendResponse});
+      // !! console.log("SyncLayerV2::init", {message, sender, sendResponse});
 
       if (message.type === "DISPATCH") {
         this.dispatch(message.action)
@@ -41,7 +41,7 @@ class SyncLayerV2 {
   ====================================== */
   async dispatch(action) {
 
-    console.log("🟣 ACTION:", action);
+    // !! console.log("🟣 ACTION:", action);
 
     switch (action.type) {
 
@@ -76,7 +76,7 @@ class SyncLayerV2 {
         );
 
       default:
-        console.warn("⚠️ Unknown action:", action.type);
+        // !! console.warn("⚠️ Unknown action:", action.type);
         return null;
     }
   }

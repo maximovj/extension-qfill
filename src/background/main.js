@@ -11,10 +11,9 @@ chrome.runtime.onInstalled.addListener(() => {
     });
     (async () => {
         try {
-            await db.initDatabase(); // asegura defaults
-            syncLayer.init();
+            await syncLayer.init();
         } catch (err) {
-            console.error("Error inicializando IndexedDB:", err);
+            // !! console.error("Error inicializando IndexedDB:", err);
         }
     })();
 });
@@ -23,10 +22,9 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onStartup.addListener(() => {
     (async () => {
         try {
-            await db.initDatabase(); // asegura defaults
-            syncLayer.init();
+            await syncLayer.init();
         } catch (err) {
-            console.error("Error inicializando IndexedDB:", err);
+            // !! console.error("Error inicializando IndexedDB:", err);
         }
     })();
 });
@@ -38,16 +36,16 @@ chrome.action.onClicked.addListener((tab) => {
 
 //  Escucha y recibe las comunicaciones que le envían otras partes
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("background::main.js",{message, sender, sendResponse});
+    // !! console.log("background::main.js",{message, sender, sendResponse});
     (async () => {
         try {
             const resultado = await handleMessages(message, sender);
-            console.log("Resultado de background:", {message, resultado});
+            // !! console.log("Resultado de background:", {message, resultado});
             sendResponse(resultado);
         } catch (error) {
             //await extensionState.reset();
             //await db.set("configuracion", db.defaultConfiguracion());
-            //console.log("Hubo un error en background:", { message, error});
+            //// !! console.log("Hubo un error en background:", { message, error});
             sendResponse({ status: "error", msg: { message, error} });
         }
     })();
@@ -60,6 +58,7 @@ if(extConfig.isDev) {
     const timestamps = new Date().toISOString(); 
     console.log('Inicializando [SERVICE WORKER] extensión QFill (DEV)... ');
     console.log('Timestamps: ' + timestamps);
+
     (async () => {
         await extensionState.debugEstado();
         const stateDB = await db.get();

@@ -15,7 +15,7 @@ export default async function handleStateEvent(msg) {
                 await db.set(key, value);
                 return { status: 'ok', msg: msg.payload };
             } catch (err) {
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }
@@ -29,7 +29,7 @@ export default async function handleStateEvent(msg) {
                 await db.setMany(setMany);
                 return { status: 'ok', msg: msg.payload };
             } catch (err) {
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }
@@ -41,7 +41,7 @@ export default async function handleStateEvent(msg) {
                 //const stateDB = await db.get();
                 return { status: 'ok' };
             } catch (err) {
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }

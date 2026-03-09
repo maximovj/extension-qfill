@@ -25,7 +25,7 @@ export default async function handleUIEvent(msg) {
                 //return { status: 'ok', msg: { configDB: {...configDB }, respuesta} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }
@@ -37,7 +37,7 @@ export default async function handleUIEvent(msg) {
                 //return { status: 'ok', msg: { configDB: {...configDB }, respuesta} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }
@@ -50,7 +50,7 @@ export default async function handleUIEvent(msg) {
                 const storeConfig = getStore?.at(0) || [];
                 const itemModoSelector = msg?.payload?.data;
                 const elementosActual = storeConfig?.elementos || [];
-                console.log("ACTIONS.SELECTOR_MODE_SET_ITEM", { msg, storeConfig, itemModoSelector, elementosActual, getState });
+                // !! console.log("ACTIONS.SELECTOR_MODE_SET_ITEM", { msg, storeConfig, itemModoSelector, elementosActual, getState });
 
                 if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "agregar"){
                     elementosActual.push(itemModoSelector);
@@ -91,7 +91,7 @@ export default async function handleUIEvent(msg) {
                 //return { status: 'ok', msg: {configDB: {...configDB }, itemModoSelector, elementosActual} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }
@@ -113,7 +113,7 @@ export default async function handleUIEvent(msg) {
                 return { status: 'ok', msg: "Perfil creado correctamente"};
             } catch (error) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }
@@ -126,7 +126,7 @@ export default async function handleUIEvent(msg) {
                 //return { status: 'ok', msg: {configDB: {...configDB }} };
             } catch (err) {
                 await sendMessage(MESSAGE_TYPES.STATE_EVENT, ACTIONS.STATE_RESET);
-                console.log("Hubo un error:", {err, msg});
+                // !! console.log("Hubo un error:", {err, msg});
                 return err;
             }
         }

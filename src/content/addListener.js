@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         case "STATE_BRODCAST": {
             let respUpdate = "ok";
             (async () =>  {
-                console.log("Enviando actualizacion a STATE_BRODCAST");
+                // !! console.log("Enviando actualizacion a STATE_BRODCAST");
                 return await sendMessage("STATE_UPDATE", "STATE_UPDATE", msg.payload);
             })().then( (rs) => {
                 respUpdate = rs;
@@ -49,12 +49,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
         case ACTIONS.SELECTOR_MODE_SET_ITEM: {
             selectElementItem = msg.payload.data;
-            console.log("selectElementItem: ", selectElementItem);
+            // !! console.log("selectElementItem: ", selectElementItem);
             sendResponse({ status: 'ok' });
             break;
         }
         case ACTIONS.SELECTOR_MODE_GET_ITEM: {
-            console.log("selectElementGetItem: ", selectElementItem);
+            // !! console.log("selectElementGetItem: ", selectElementItem);
             sendResponse(selectElementItem);
             break;
         }

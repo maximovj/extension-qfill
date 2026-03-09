@@ -18,7 +18,7 @@ const emit = defineEmits(["nuevoPerfil", "update:sectionVisible"]);
 let localState = ref(null);
 let messageListener = null;
 
-const configuracion = ref(null);
+const escaneo = ref(null);
 const search = ref("")
 const filtroTipo = ref("all")
 const animando = ref(null)
@@ -94,7 +94,7 @@ const eliminarTodoEscaneado = async () => {
   emit("update:sectionVisible", "escaneo");
 
   await persistirConfig();
-  await cargarConfiguracion();
+  await cargarescaneo();
 }
 
 const aplicarFakerFiller = async () => {
@@ -105,7 +105,7 @@ const aplicarFakerFiller = async () => {
   }));
 
   await persistirConfig();
-  await cargarConfiguracion();
+  await cargarescaneo();
 }
 
 const rellenarInput = async (input) => {
@@ -147,7 +147,7 @@ const cambiarSelectedATodos = async (x) => {
   inputs.value = inputs.value.map(item => ({ ...item, selected: x }));
 
   await persistirConfig();
-  await cargarConfiguracion();
+  await cargarescaneo();
 }
 
 const quitarValores = async () => {
@@ -157,7 +157,7 @@ const quitarValores = async () => {
   });
 
   await persistirConfig();
-  await cargarConfiguracion();
+  await cargarescaneo();
 };
 
 // !! MÉTODOS
@@ -166,7 +166,7 @@ const persistirConfig = async () => {
   await sendToBackground({
     type: "DISPATCH",
     action: {
-      type: "CONFIG_SAVE",
+      type: "ESCANEO_SAVE",
       payload: {
         actualizado: Date.now(),
         elementoSeleccionado: {},
@@ -215,16 +215,16 @@ const rellenarInputAnimado = (input) => {
 }
 
 // Cargar perfiles
-const cargarConfiguracion = async () => {
+const cargarescaneo = async () => {
   localState.value = await chrome.runtime.sendMessage({
     type: "GET_STATE"
   });
-  configuracion.value = localState.value?.configuracion;
-  esEscaneado.value = configuracion.value?.elementos?.length > 0;
-  inputs.value = configuracion.value?.elementos || [];
-  modoEscaneo.value = configuracion.value?.modo || "visibles";
-  modoSelector.value = configuracion.value?.selectorActivado || false;
-  modoSelectorAccion.value = configuracion.value?.selectorAccion || "agregar";
+  escaneo.value = localState.value?.escaneo;
+  esEscaneado.value = escaneo.value?.elementos?.length > 0;
+  inputs.value = escaneo.value?.elementos || [];
+  modoEscaneo.value = escaneo.value?.modo || "visibles";
+  modoSelector.value = escaneo.value?.selectorActivado || false;
+  modoSelectorAccion.value = escaneo.value?.selectorAccion || "agregar";
 }
 
 // CHANGE: Eliminar este método de prueba
@@ -236,11 +236,11 @@ const test = async () => {
 
 /* Cargar popup */
 onMounted(async () => {
-  await cargarConfiguracion();
+  await cargarescaneo();
   messageListener = async (message) => {
     if (message.type === "STATE_UPDATED") {
       localState.value = message.state;
-      await cargarConfiguracion();
+      await cargarescaneo();
     }
   };
 

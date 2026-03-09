@@ -13,7 +13,7 @@ class ExtensionState {
             inputs: [],
             modo: 'visibles'
         },
-        configuracion: {
+        escaneo: {
             modoEscaneoPorDefecto: 'visibles',
             autoGuardar: true
         },
@@ -53,7 +53,7 @@ class ExtensionState {
         target[lastKey] = value;
         
         // Auto-guardar si está configurado
-        if (this.state.configuracion.autoGuardar) {
+        if (this.state.escaneo.autoGuardar) {
         await this.persist();
         }
         
@@ -75,7 +75,7 @@ class ExtensionState {
         target[lastKey] = value;
         });
         
-        if (this.state.configuracion.autoGuardar) {
+        if (this.state.escaneo.autoGuardar) {
         await this.persist();
         }
         
@@ -97,7 +97,7 @@ class ExtensionState {
                 inputs: [],
                 modo: 'visibles'
             },
-            configuracion: {
+            escaneo: {
                 modoEscaneoPorDefecto: 'visibles',
                 autoGuardar: true
             },

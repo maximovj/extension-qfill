@@ -19,7 +19,7 @@
             <div class="flex gap-3 items-center">
                 <button
                     @click="mostrarPanelEscaneo"
-                    :class="[panel == 'configuracion' ? 'text-menu-item-active' : 'text-menu-item']"
+                    :class="[panel == 'escaneo' ? 'text-menu-item-active' : 'text-menu-item']"
                     :active="true"
                 >
                     Ver escaneo
@@ -43,7 +43,7 @@
         </div>
 
         <PanelPerfiles v-if="panel === 'perfiles'" />
-        <PanelEscaneo v-if="panel === 'configuracion'" @perfil-nuevo-creado="mostrarPanelPerfiles" />
+        <PanelEscaneo v-if="panel === 'escaneo'" @perfil-nuevo-creado="mostrarPanelPerfiles" />
         <PanelHistorial v-if="panel === 'historial'" />
     </div>
 </template>
@@ -62,13 +62,13 @@ export default {
     },
     data() {
         return {
-            panel: 'configuracion', // configuracion | perfiles | historial
+            panel: 'escaneo', // escaneo | perfiles | historial
             extConfig
         }
     },
     methods: {
         mostrarPanelEscaneo(){ 
-            this.panel = "configuracion";
+            this.panel = "escaneo";
         },
         mostrarPanelPerfiles(){ 
             this.panel = "perfiles";

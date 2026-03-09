@@ -66,12 +66,12 @@ class SyncLayerV2 {
         );
 
       /* =============================
-         CONFIGURACION
+         escaneo
       ============================== */
 
-      case "CONFIG_SAVE":
+      case "ESCANEO_SAVE":
         return await indexedDBManager.saveSingle(
-          "configuracion",
+          "escaneo",
           action.payload
         );
 

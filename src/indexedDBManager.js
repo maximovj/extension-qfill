@@ -27,8 +27,8 @@ class IndexedDBManager {
            🗂 STORE CONFIGURATION (GENÉRICO)
         ========================================================= */
         this.STORES = {
-            configuracion: {
-                name: "configuracion",
+            escaneo: {
+                name: "escaneo",
                 keyPath: "id",
                 autoIncrement: false,
                 type: "single"
@@ -130,7 +130,7 @@ class IndexedDBManager {
        🧠 DEFAULTS
     ========================================================= */
     defaultStore(name) {
-        if (name === "configuracion") {
+        if (name === "escaneo") {
             return {
                 id: 200,
                 modo: "visibles",
@@ -331,7 +331,7 @@ class IndexedDBManager {
 
     // uso:
     /*
-    DB.watch("configuracion.modo", (value) => {
+    DB.watch("escaneo.modo", (value) => {
             // !! console.log("modo cambio:", value);
     });
     */
@@ -349,7 +349,7 @@ class IndexedDBManager {
         return () => this.listeners.delete(listener);
     }
 
-    // uso: await DB.set("configuracion.modo", "ocultos");
+    // uso: await DB.set("escaneo.modo", "ocultos");
     async set(path, value) {
         const keys = path.split(".");
         const storeName = keys.shift();
@@ -386,7 +386,7 @@ class IndexedDBManager {
         return this.delete(storeName, id);
     }
 
-    // uso: await DB.updateByPath("configuracion.selectorActivado", true);
+    // uso: await DB.updateByPath("escaneo.selectorActivado", true);
     async updateByPath(path, value) {
         const keys = path.split(".");
         const storeName = keys.shift();

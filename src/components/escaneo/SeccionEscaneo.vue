@@ -13,7 +13,7 @@ const emit = defineEmits(["update:sectionVisible"]);
 let localState = ref(null);
 let messageListener = null;
 
-const configuracion = ref(null);
+const escaneo = ref(null);
 const search = ref("");
 const filtroTipo = ref("all");
 
@@ -56,8 +56,8 @@ const obtenerInputs = async () => {
   );
 
   inputs.value = sendResponse?.payload || [];
-  await persistirConfig();
-  await cargarConfiguracion();
+  await persistirStateEscaneo();
+  await cargarStoreEscaneo();
   emit("update:sectionVisible", "resultados");
 };
 
@@ -77,8 +77,8 @@ const activarModoSelector = async () => {
 
   if (sendResponse) {
     emit("update:sectionVisible", "resultados");
-    await persistirConfig();
-    await cargarConfiguracion();
+    await persistirStateEscaneo();
+    await cargarStoreEscaneo();
   }
 
   modoSelector.value = false;
@@ -106,8 +106,8 @@ const cambiarModoEscaneo = async (modo) => {
       modoEscaneo.value = "todos";
   }
 
-  await persistirConfig();
-  await cargarConfiguracion();
+  await persistirStateEscaneo();
+  await cargarStoreEscaneo();
 };
 
 const cambiarModoSelectorAccion = async (modo) => {
@@ -125,16 +125,16 @@ const cambiarModoSelectorAccion = async (modo) => {
       modoSelectorAccion.value = "todos";
   }
 
-  await persistirConfig();
-  await cargarConfiguracion();
+  await persistirStateEscaneo();
+  await cargarStoreEscaneo();
 };
 
 const activarImportacion = async () => {
   modoEscaneo.value = "json";
   fileJsonRef.value?.click();
 
-  await persistirConfig();
-  await cargarConfiguracion();
+  await persistirStateEscaneo();
+  await cargarStoreEscaneo();
 };
 
 const importarJSON = (event) => {
@@ -179,8 +179,8 @@ const importarJSON = (event) => {
       successJson.value = "✔️ JSON importado correctamente";
       emit("update:sectionVisible", "resultados");
 
-      await persistirConfig();
-      await cargarConfiguracion();
+      await persistirStateEscaneo();
+      await cargarStoreEscaneo();
     } catch (err) {
       errorJson.value = "✖️ El JSON no tiene la estructura correcta ";
     } finally {
@@ -194,11 +194,11 @@ const importarJSON = (event) => {
 
 // !! MÉTODOS
 
-const persistirConfig = async () => {
+const persistirStateEscaneo = async () => {
   await sendToBackground({
     type: "DISPATCH",
     action: {
-      type: "CONFIG_SAVE",
+      type: "ESCANEO_SAVE",
       payload: {
         actualizado: Date.now(),
         elementoSeleccionado: {},
@@ -216,16 +216,14 @@ const fnVerResultados = () => {
 };
 
 // Cargar perfiles
-const cargarConfiguracion = async () => {
-  localState.value = await chrome.runtime.sendMessage({
-    type: "GET_STATE",
-  });
-  configuracion.value = localState.value?.configuracion;
-  esEscaneado.value = configuracion.value?.elementos?.length > 0;
-  inputs.value = configuracion.value?.elementos || [];
-  modoEscaneo.value = configuracion.value?.modo || "visibles";
-  modoSelector.value = configuracion.value?.selectorActivado || false;
-  modoSelectorAccion.value = configuracion.value?.selectorAccion || "agregar";
+const cargarStoreEscaneo = async () => {
+  localState.value = await sendToBackground({ type: "GET_STATE" });
+  escaneo.value = localState.value?.escaneo;
+  esEscaneado.value = escaneo.value?.elementos?.length > 0;
+  inputs.value = escaneo.value?.elementos || [];
+  modoEscaneo.value = escaneo.value?.modo || "visibles";
+  modoSelector.value = escaneo.value?.selectorActivado || false;
+  modoSelectorAccion.value = escaneo.value?.selectorAccion || "agregar";
 };
 
 // CHANGE: Eliminar este método de prueba
@@ -235,11 +233,11 @@ const test = async () => { };
 
 /* Cargar popup */
 onMounted(async () => {
-  await cargarConfiguracion();
+  await cargarStoreEscaneo();
   messageListener = async (message) => {
     if (message.type === "STATE_UPDATED") {
       localState.value = message.state;
-      await cargarConfiguracion();
+      await cargarStoreEscaneo();
     }
   };
 

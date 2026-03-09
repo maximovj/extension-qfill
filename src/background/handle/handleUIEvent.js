@@ -44,43 +44,43 @@ export default async function handleUIEvent(msg) {
 
         case ACTIONS.SELECTOR_MODE_SET_ITEM:{
             try {
-                const getStore = await db.getAll("configuracion");
+                const getStore = await db.getAll("escaneo");
                 const getState = await db.get();
-                const configuracion = getState?.configuracion || {};
+                const escaneo = getState?.escaneo || {};
                 const storeConfig = getStore?.at(0) || [];
                 const itemModoSelector = msg?.payload?.data;
                 const elementosActual = storeConfig?.elementos || [];
                 // !! console.log("ACTIONS.SELECTOR_MODE_SET_ITEM", { msg, storeConfig, itemModoSelector, elementosActual, getState });
 
-                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "agregar"){
+                if(escaneo?.selectorActivado && escaneo?.modo == "selector" && escaneo?.selectorAccion == "agregar"){
                     elementosActual.push(itemModoSelector);
                     await db.saveSingle(
-                        "configuracion",
+                        "escaneo",
                         {
-                        ...configuracion,
+                        ...escaneo,
                         elementoSeleccionado: itemModoSelector,
                         elementos: elementosActual,
                         }
                     );
                 }
                 
-                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "nuevo"){
+                if(escaneo?.selectorActivado && escaneo?.modo == "selector" && escaneo?.selectorAccion == "nuevo"){
                     await db.saveSingle(
-                        "configuracion",
+                        "escaneo",
                         {
-                        ...configuracion,
+                        ...escaneo,
                         elementoSeleccionado: itemModoSelector,
                         elementos: [itemModoSelector],
                         }
                     );
                 }
 
-                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "escanear"){
+                if(escaneo?.selectorActivado && escaneo?.modo == "selector" && escaneo?.selectorAccion == "escanear"){
                     elementosActual.push(...itemModoSelector);
                     await db.saveSingle(
-                        "configuracion",
+                        "escaneo",
                         {
-                        ...configuracion,
+                        ...escaneo,
                         elementoSeleccionado: itemModoSelector,
                         elementos: elementosActual,
                         }

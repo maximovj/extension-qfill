@@ -238,7 +238,6 @@ onMounted(async () => {
   await cargarConfiguracion();
   messageListener = async (message) => {
     if (message.type === "STATE_UPDATED") {
-      alert("SeccionModoResultados");
       localState.value = message.state;
       await cargarConfiguracion();
     }

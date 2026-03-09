@@ -235,7 +235,6 @@ onMounted(async () => {
   await cargarConfiguracion();
   messageListener = async (message) => {
     if (message.type === "STATE_UPDATED") {
-      alert("SeccionEscaneo");
       localState.value = message.state;
       await cargarConfiguracion();
     }

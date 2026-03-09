@@ -7,6 +7,8 @@ import generarPerfilFake from '../../sidepanel/utils/generarPerfilFake';
 import db from "../../indexedDBManager";
 import AlertaConfirmar from "../common/AlertaConfirmar.vue";
 import SeccionDesplegable from "../common/SeccionDesplegable.vue";
+import TarjetaElemento from "./TarjetaElemento.vue";
+import AccionElemento from "./AccionElemento.vue";
 
 const props = defineProps({
   elemento: Object,
@@ -104,17 +106,6 @@ const cambiarSelectedATodos = (valor) => {
     ...item,
     selected: valor
   }));
-};
-
-const actualizarValor = (input, event) => {
-  if (input.type === "checkbox") input.value = event.target.checked;
-  else if (input.type === "number" || input.type === "range")
-    input.value = Number(event.target.value);
-  else if (input.type === "select-multiple")
-    input.value = Array.from(event.target.selectedOptions).map(
-      (opt) => opt.value,
-    );
-  else input.value = event.target.value;
 };
 
 const actualizarEstadosRef = async () => {
@@ -235,83 +226,15 @@ onUnmounted(() => {
         <SeccionDesplegable :titulo="`Elementos (${editarTotalElementos})`">
           <template v-slot:contenido>
             <!-- Elementos | Acciones -->
-            <div v-if="editarTotalElementos > 0" class="grid grid-cols-2 my-2 space-y-2">
-              <div>
-                <button @click="eliminarTodos" class="btn btn-outline-red">
-                  Eliminar todos
-                </button>
-              </div>
-              <div></div>
-              <div>
-                <button @click="cambiarSelectedATodos(true)" class="btn btn-outline-primary">
-                  Seleccionar todos
-                </button>
-              </div>
-              <div>
-                <button @click="cambiarSelectedATodos(false)" class="btn btn-outline-primary">
-                  Deseleccionar todos
-                </button>
-              </div>
-              <div>
-                <button @click="aplicarFakerFiller()" class="btn btn-outline-primary">
-                  Aplicar Faker Filler ({{ editarTotalSelecionados }})
-                </button>
-              </div>
-              <div>
-                <button @click="exportarJSON()" class="btn btn-outline-primary">
-                  Exportar a JSON ({{ editarTotalSelecionados }})
-                </button>
-              </div>
-            </div>
-            <div v-else>
-              <span>No hay elementos</span>
-            </div>
+            <AccionElemento 
+              :es-visible="editarTotalElementos > 0"
+              :editar-total-selecionados="editarTotalSelecionados"
+            ></AccionElemento>
 
             <div class="grid grid-cols-1 gap-2 overflow-y-auto max-h-[260px]">
               <div v-for="i in editar?.elementos" :key="i.id"
                 class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition">
-                <div class="flex justify-between">
-                  <div class="truncate w-full w-max-1/2 overflow-auto">
-                    <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
-                    <div class="font-medium">
-                      {{ i.name || "Sin nombre" }}
-                    </div>
-                    <div class="text-[10px] text-[var(--text-secondary)]">
-                      {{ i.type }} • {{ i.id || "sin-id" }}
-                    </div>
-                    <div class="text-[10px] truncate max-w-[169px] text-[var(--text-secondary)]">
-                      id. {{ i.autofillId.slice(0, 30) }}...
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Editor dinámico -->
-                <div>
-                  <template v-if="i.type === 'checkbox'">
-                    <label class="flex items-center gap-2">
-                      <input type="checkbox" :checked="i.value" @change="actualizarValor(i, $event)" />
-                      Activado
-                    </label>
-                  </template>
-
-                  <template v-else-if="
-                    i.type === 'select-one' || i.type === 'select-multiple'
-                  ">
-                    <select :multiple="i.type === 'select-multiple'" @change="actualizarValor(i, $event)"
-                      class="input text-xs">
-                      <option v-for="opt in i.options" :key="opt" :value="opt" :selected="i.type === 'select-multiple'
-                        ? i.value.includes(opt)
-                        : i.value === opt
-                        ">
-                        {{ opt }}
-                      </option>
-                    </select>
-                  </template>
-
-                  <template v-else>
-                    <input type="text" :value="i.value" @input="actualizarValor(i, $event)" class="input text-xs" />
-                  </template>
-                </div>
+                <TarjetaElemento :elemento="i" />
               </div>
             </div>
           </template>
@@ -331,7 +254,6 @@ onUnmounted(() => {
         </div>
 
       </div>
-
     </section>
   </div>
 </template>

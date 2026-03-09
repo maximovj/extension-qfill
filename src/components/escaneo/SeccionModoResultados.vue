@@ -6,6 +6,7 @@ import generarFakeValue from '../../sidepanel/utils/generarFakeValue';
 import generarPerfilFake from '../../sidepanel/utils/generarPerfilFake';
 import db from "../../indexedDBManager";
 import SeccionDesplegable from "../common/SeccionDesplegable.vue";
+import GrupoFormulario from "./GrupoFormulario.vue";
 
 const props = defineProps({
   sectionVisible: String,
@@ -348,89 +349,7 @@ onUnmounted(() => {
         <!-- ===================== -->
         <!-- INPUTS -->
         <!-- ===================== -->
-
-        <div v-for="(grupo, formName) in inputsAgrupados" :key="formName"
-          class="max-h-[350px] overflow-y-auto space-y-1 space-y-3">
-
-          <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
-            {{ formName }}
-          </div>
-
-          <div v-for="i in grupo" :key="i.id"
-            class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
-            :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''">
-
-            <!-- header -->
-
-            <div class="flex justify-between gap-2">
-
-              <div class="flex-1 min-w-0">
-
-                <div class="font-medium truncate">
-                  {{ i.name || 'Sin nombre' }}
-                </div>
-
-                <div class="text-[10px] text-[var(--text-secondary)]">
-                  {{ i.type }} • {{ i.id || 'sin-id' }}
-                </div>
-
-                <div class="text-[10px] truncate text-[var(--text-secondary)]">
-                  id. {{ i.autofillId.slice(0, 30) }}...
-                </div>
-
-              </div>
-
-              <div class="flex flex-col items-center gap-2">
-
-                <input type="checkbox" v-model="i.selected" class="accent-[var(--primary)]" />
-
-                <button @click="rellenarInputAnimado(i)" class="btn btn-outline-green text-[10px]">
-                  Rellenar
-                </button>
-
-              </div>
-
-            </div>
-
-            <!-- editor -->
-
-            <div>
-
-              <template v-if="i.type === 'checkbox'">
-
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" :checked="i.value" @change="actualizarValor(i, $event)" />
-                  Activado
-                </label>
-
-              </template>
-
-              <template v-else-if="i.type === 'select-one' || i.type === 'select-multiple'">
-
-                <select :multiple="i.type === 'select-multiple'" @change="actualizarValor(i, $event)"
-                  class="input text-xs w-full">
-
-                  <option v-for="opt in i.options" :key="opt" :value="opt" :selected="i.type === 'select-multiple'
-                    ? i.value.includes(opt)
-                    : i.value === opt">
-                    {{ opt }}
-                  </option>
-
-                </select>
-
-              </template>
-
-              <template v-else>
-
-                <input type="text" :value="i.value" @input="actualizarValor(i, $event)" class="input text-xs w-full" />
-
-              </template>
-
-            </div>
-
-          </div>
-
-        </div>
+        <GrupoFormulario :inputsAgrupados="inputsAgrupados" ></GrupoFormulario>
 
         <!-- ===================== -->
         <!-- ZONA PELIGROSA -->

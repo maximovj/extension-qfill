@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, defineEmits } from "vue"
+import { ref, computed, onMounted, onUnmounted} from "vue"
 import { MESSAGE_TYPES, ACTIONS } from '@/constants.config.js'
 import { sendMessage, sendToBackground } from '@/helpers.config.js'
 import generarFakeValue from '../../sidepanel/utils/generarFakeValue';

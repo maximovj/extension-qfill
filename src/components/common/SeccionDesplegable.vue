@@ -1,5 +1,5 @@
 <template>
-  <div class="border border-[var(--border)] rounded-lg">
+  <div class="border border-(--border) rounded-lg">
     <!-- Header -->
     <div
       @click="openInfo = !openInfo"
@@ -26,7 +26,7 @@
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-2"
     >
-      <div v-if="openInfo" class="p-3 border-t border-[var(--border)]">
+      <div v-if="openInfo" class="p-3 border-t border-(--border)">
         <!-- Tu contenido -->
         <section>
           <slot name="contenido"></slot>

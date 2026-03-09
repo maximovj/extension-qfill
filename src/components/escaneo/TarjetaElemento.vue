@@ -40,7 +40,7 @@ const actualizarValor = (input, event) => {
 <template>
 
     <div v-for="i in elementos" :key="i.id"
-        class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
+        class="bg-[var(--bg)] border border-(--border) rounded-lg p-3 space-y-2 transition hover:border-[var(--primary)] hover:shadow-sm"
         :class="animando === i.id ? 'ring-2 ring-green-500 animate-pulse' : ''">
 
         <!-- header -->

@@ -1,12 +1,12 @@
 <template>
     <dialog 
-    class="fixed inset-0 w-[320px] h-fit bg-[var(--surface)] border border-[var(--border)] rounded-xl space-y-4 
+    class="fixed inset-0 w-[320px] h-fit bg-(--surface) border border-(--border) rounded-xl space-y-4 
     items-center justify-center mx-auto my-auto shadow-2xl backdrop:bg-white/5 backdrop:backdrop-blur-sm"
     ref="dialogoRef">
         <section class="flex flex-col h-fit">
-            <header class="p-3 bg-[var(--bg)] flex justify-between items-center">
+            <header class="p-3 bg-(--bg) flex justify-between items-center">
                 <span class="text-[14px]">{{ titulo || "TITULO"  }}</span>
-                <span @click="fnAccionCerrar" class="cursor-pointer text-[10px] bg-[var(--surface)] border border-[var(--border)] px-2 py-1 rounded-full text-red-300">X</span>
+                <span @click="fnAccionCerrar" class="cursor-pointer text-[10px] bg-(--surface) border border-(--border) px-2 py-1 rounded-full text-red-300">X</span>
             </header>
             <main class="p-3 flex-1 overflow-auto">
                 {{  mensaje || '¿Seguro que puedes ver esto?'  }}

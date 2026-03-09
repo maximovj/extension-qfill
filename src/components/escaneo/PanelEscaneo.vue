@@ -13,7 +13,7 @@ const fnaNuevoPerfil = (value) => {
 
 <!-- panel configuración v2.5  -->
 <template>
-<div class="space-y-4 text-xs max-w-[520px] mx-auto animate-slide-in">
+<div class="space-y-4 text-xs max-w-130 mx-auto animate-slide-in">
   <SeccionEscaneo 
     v-model:sectionVisible="sectionVisible"
     v-if="sectionVisible === 'escaneo'" 

@@ -195,7 +195,7 @@ onUnmounted(() => {
     <!-- ===================== -->
     <!-- 🟦 MÓDULO : EDICCION -->
     <!-- ===================== -->
-    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+    <section class="bg-(--surface) border border-(--border) rounded-xl p-4 space-y-3">
       <h2 class="text-[12px] font-semibold">
         <span class="text-secondary cursor-pointer" @click="fnAccionVolver">Perfiles</span>
         >
@@ -231,9 +231,9 @@ onUnmounted(() => {
               :editar-total-selecionados="editarTotalSelecionados"
             ></AccionElemento>
 
-            <div class="grid grid-cols-1 gap-2 overflow-y-auto max-h-[260px]">
+            <div class="grid grid-cols-1 gap-2 overflow-y-auto max-h-65">
               <div v-for="i in editar?.elementos" :key="i.id"
-                class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition">
+                class="bg-(--bg) border border-(--border) rounded-lg p-3 space-y-2 transition">
                 <TarjetaElemento :elemento="i" />
               </div>
             </div>

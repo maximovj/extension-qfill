@@ -257,7 +257,7 @@ onUnmounted(() => {
 <template>
   <div class="perspective-normal animate-slide-in">
     <section
-      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[580px] overflow-y-auto">
+      class="bg-(--surface) border border-(--border) rounded-xl p-4 space-y-4 max-h-145 overflow-y-auto">
 
       <!-- header -->
       <h2 class="text-[12px] font-semibold">
@@ -300,8 +300,8 @@ onUnmounted(() => {
                 <button v-for="tipo in tiposDisponibles" :key="tipo" @click="filtroTipo = tipo" :class="[
                   'px-2 py-1 rounded-md border text-[10px] transition',
                   filtroTipo === tipo
-                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-                    : 'border-[var(--border)] text-[var(--text-secondary)]'
+                    ? 'bg-(--primary) text-white border-(--primary)'
+                    : 'border-(--border) text-(--text-secondary)'
                 ]">
                   {{ tipo }}
                 </button>
@@ -355,7 +355,7 @@ onUnmounted(() => {
         <!-- ZONA PELIGROSA -->
         <!-- ===================== -->
 
-        <div class="grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-3">
+        <div class="grid grid-cols-3 gap-2 border-t border-(--border) pt-3">
 
           <button @click="eliminarTodoEscaneado" class="btn btn-outline-red w-full">
             Eliminar todos

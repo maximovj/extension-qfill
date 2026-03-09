@@ -5,7 +5,7 @@
 <template>
     <div class="space-y-5 text-xs perspective-normal animate-slide-in">
         <section 
-        class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+        class="bg-(--surface) border border-(--border) rounded-xl p-4 space-y-3">
         <div class="flex items-center justify-between">
             <h2 class="text-sm font-semibold">Historial de escaneos</h2>
             <span class="text-[10px] text-[var(--text-secondary)]">

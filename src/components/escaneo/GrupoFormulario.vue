@@ -9,9 +9,9 @@ defineProps({
 
 <template>
     <div v-for="(grupo, formName) in inputsAgrupados" :key="formName"
-        class="max-h-[350px] overflow-y-auto space-y-1 space-y-3">
+        class="max-h-87.5 overflow-y-auto space-y-1">
 
-        <div class="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+        <div class="text-[10px] uppercase tracking-wide text-(--text-secondary)">
             {{ formName }}
         </div>
 

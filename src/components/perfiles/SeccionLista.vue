@@ -83,10 +83,10 @@ onUnmounted(() => {
     <!-- 🟦 MÓDULO : RESULTADOS -->
     <!-- ===================== -->
     <section
-      class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-4 max-h-[520px] overflow-y-auto">
+      class="bg-(--surface) border border-(--border) rounded-xl p-4 space-y-4 max-h-130 overflow-y-auto">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold">Perfiles</h2>
-        <span class="text-[10px] text-[var(--text-secondary)]">
+        <span class="text-[10px] text-(--text-secondary)">
           {{ totalPerfiles }} perfiles
         </span>
       </div>
@@ -98,22 +98,22 @@ onUnmounted(() => {
 
       <div class="space-y-3">
         <div v-for="perfil in perfiles" :key="perfil?.id" v-show="perfil != editar"
-          class="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3 space-y-2 transition"
+          class="bg-(--bg) border border-(--border) rounded-lg p-3 space-y-2 transition"
           :class="'ring-2 ring-green-500'">
           <div class="flex justify-between">
             <div class="truncate w-full w-max-1/2 overflow-auto">
               <div class="flex justify-between gap-2 items-center">
-                <span class="font-medium truncate max-w-[200px]">
+                <span class="font-medium truncate max-w-50">
                   {{ perfil?.nombre || "Sin nombre" }}
                 </span>
-                <span class="text-[10px] truncate max-w-[200px] text-[var(--text-secondary)]">
+                <span class="text-[10px] truncate max-w-50 text-(--text-secondary)">
                   elementos ({{ perfil?.elementos?.length || 0 }})
                 </span>
               </div>
-              <div class="text-[10px] truncate max-w-[200px] text-[var(--text-secondary)]">
+              <div class="text-[10px] truncate max-w-50 text-(--text-secondary)">
                 {{ perfil?.descripcion || "Sin Descripcion" }}
               </div>
-              <div class="text-[10px] truncate max-w-[200px] text-[var(--text-secondary)]">
+              <div class="text-[10px] truncate max-w-50 text-(--text-secondary)">
                 ID. #{{ perfil?.id || "Sin ID" }}
               </div>
             </div>

@@ -259,7 +259,7 @@ onUnmounted(() => {
     <!-- ESCANEO -->
     <!-- ===================== -->
 
-    <section class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+    <section class="bg-(--surface) border border-(--border) rounded-xl p-4 space-y-3">
       <h2 class="text-[12px] font-semibold">
         <span class="text-menu-item-active">Escaneo</span>
         >
@@ -269,14 +269,14 @@ onUnmounted(() => {
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold">Escaneo</h2>
 
-        <span class="text-[10px] text-[var(--text-secondary)]">
+        <span class="text-[10px] text-(--text-secondary)">
           {{ inputs?.length }} detectados
         </span>
       </div>
 
       <!-- modos -->
 
-      <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden w-full">
+      <div class="flex bg-(--bg) border border-(--border) rounded-lg overflow-hidden w-full">
         <button @click="cambiarModoEscaneo('visibles')" :class="[
           'flex-1',
           modoEscaneo === 'visibles' ? activeSegment : segment,
@@ -304,7 +304,7 @@ onUnmounted(() => {
 
       <!-- contenido dinámico -->
 
-      <div class="text-[11px] text-[var(--text-secondary)]">
+      <div class="text-[11px] text-(--text-secondary)">
         <p v-if="modoEscaneo === 'visibles'">Escanea solo inputs visibles.</p>
 
         <p v-if="modoEscaneo === 'todos'">
@@ -314,7 +314,7 @@ onUnmounted(() => {
         <div v-if="modoEscaneo === 'selector'" class="space-y-2">
           <p>Selecciona manualmente elementos de la página.</p>
 
-          <div class="flex bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden">
+          <div class="flex bg-(--bg) border border-(--border) rounded-lg overflow-hidden">
             <button @click="cambiarModoSelectorAccion('agregar')" :class="[
               'flex-1',
               modoSelectorAccion === 'agregar' ? activeSegment : segment,

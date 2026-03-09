@@ -1,12 +1,13 @@
 import mapElementToInputObject from '../utils/mapElementToInputObject';
 import { MESSAGE_TYPES, ACTIONS } from '../../constants.config.js'
 import { sendMessage } from '../../helpers.config.js'
+import scanInputsInsideElement from './scanInputsInsideElement';
 
 let elementoActual = null;
 let overlay = null;
 let selectorActivo = false;
 
-export default function selectElementEnable() {
+export default function selectElementEnable(accion = "nuevo") {
 
   if (selectorActivo) return; // evita doble activación
   selectorActivo = true;
@@ -43,9 +44,8 @@ export default function selectElementEnable() {
 
     limpiar();
 
-    if (elementoActual) {
+    if ((accion === 'agregar' || accion === 'nuevo') && elementoActual) {
       const data = mapElementToInputObject(elementoActual);
-
       const response = await sendMessage(
         MESSAGE_TYPES.UI_EVENT,
         ACTIONS.SELECTOR_MODE_SET_ITEM,
@@ -54,7 +54,18 @@ export default function selectElementEnable() {
         }
       );
 
+    } else {
+      const data = scanInputsInsideElement(elementoActual, true);
+      await sendMessage(
+        MESSAGE_TYPES.UI_EVENT,
+        ACTIONS.SELECTOR_MODE_SET_ITEM,
+        {
+          data
+        }
+      );
+
     }
+
   };
 
   const limpiar = () => {

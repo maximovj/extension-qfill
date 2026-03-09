@@ -42,7 +42,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             break;
         }
         case ACTIONS.SELECTOR_MODE_ENABLE: {
-            selectElementEnable();
+            const accion = msg.payload.accion || 'nuevo';
+            selectElementEnable(accion);
             sendResponse({ status: 'ok' });
             break;
         }

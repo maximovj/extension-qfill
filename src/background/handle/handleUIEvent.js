@@ -52,7 +52,7 @@ export default async function handleUIEvent(msg) {
                 const elementosActual = storeConfig?.elementos || [];
                 console.log("ACTIONS.SELECTOR_MODE_SET_ITEM", { msg, storeConfig, itemModoSelector, elementosActual, getState });
 
-                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "agregar" ){
+                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "agregar"){
                     elementosActual.push(itemModoSelector);
                     await db.saveSingle(
                         "configuracion",
@@ -62,13 +62,27 @@ export default async function handleUIEvent(msg) {
                         elementos: elementosActual,
                         }
                     );
-                } else {
+                }
+                
+                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "nuevo"){
                     await db.saveSingle(
                         "configuracion",
                         {
                         ...configuracion,
                         elementoSeleccionado: itemModoSelector,
                         elementos: [itemModoSelector],
+                        }
+                    );
+                }
+
+                if(configuracion?.selectorActivado && configuracion?.modo == "selector" && configuracion?.selectorAccion == "escanear"){
+                    elementosActual.push(...itemModoSelector);
+                    await db.saveSingle(
+                        "configuracion",
+                        {
+                        ...configuracion,
+                        elementoSeleccionado: itemModoSelector,
+                        elementos: elementosActual,
                         }
                     );
                 }
